@@ -8,6 +8,8 @@ import { PersonalityTest } from "./components/pages/PersonalityTest";
 import { CareerRecommendations } from "./components/pages/CareerRecommendations";
 import { RecruiterDashboard } from "./components/pages/RecruiterDashboard";
 import { ApiDocs } from "./components/pages/ApiDocs";
+import { Login } from "./components/pages/Login";
+import { Register } from "./components/pages/Register";
 
 export const router = createBrowserRouter([
   {
@@ -22,6 +24,8 @@ export const router = createBrowserRouter([
       { path: "student/recommendations", Component: CareerRecommendations },
       { path: "recruiter", Component: RecruiterDashboard },
       { path: "api", Component: ApiDocs },
+      { path: "login", Component: Login },
+      { path: "register", Component: Register },
     ],
   },
 ]);
