@@ -8,7 +8,7 @@ import { PersonalityTest } from "./components/pages/PersonalityTest";
 import { CareerRecommendations } from "./components/pages/CareerRecommendations";
 import { RecruiterDashboard } from "./components/pages/RecruiterDashboard";
 import { ApiDocs } from "./components/pages/ApiDocs";
-import { Login } from "./components/pages/Login";
+import { Login } from "./components/ui/Login";
 import { Register } from "./components/pages/Register";
 
 export const router = createBrowserRouter([
