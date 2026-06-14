@@ -3,17 +3,24 @@ import { getRecommendations } from "../../src/api/ai"
 
 export function CareerRecommendations() {
   const [skills, setSkills] = useState("")
-  const [results, setResults] = useState("")
+  const [results, setResults] = useState<any[]>([])
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState("")
 
   const handleSubmit = async () => {
     setLoading(true)
+    setError("")
     try {
       const skillList = skills.split(",").map(s => s.trim())
       const data = await getRecommendations(skillList)
-      setResults(data.recommendations)
+      const cleaned = data.recommendations
+        .replace(/```json/g, "")
+        .replace(/```/g, "")
+        .trim()
+      const parsed = JSON.parse(cleaned)
+      setResults(Array.isArray(parsed) ? parsed : parsed.career_paths || [])
     } catch {
-      setResults("Error getting recommendations. Try again.")
+      setError("Error getting recommendations. Try again.")
     } finally {
       setLoading(false)
     }
@@ -45,10 +52,27 @@ export function CareerRecommendations() {
           </button>
         </div>
 
-        {results && (
-          <div className="bg-white p-6 rounded-xl shadow-sm">
-            <h2 className="text-xl font-bold text-gray-800 mb-4">Your Personalized Career Paths</h2>
-            <pre className="whitespace-pre-wrap text-gray-700 text-sm">{results}</pre>
+        {error && <p className="text-red-500 mb-4">{error}</p>}
+
+        {results.length > 0 && (
+          <div className="space-y-4">
+            <h2 className="text-xl font-bold text-gray-800">Your Personalized Career Paths</h2>
+            {results.map((item: any, index: number) => (
+              <div key={index} className="bg-white p-6 rounded-xl shadow-sm border border-orange-100">
+                <h3 className="text-lg font-bold text-orange-600 mb-2">
+                  {index + 1}. {item.job_title}
+                </h3>
+                <p className="text-gray-700 mb-3">{item.why_it_suits_these_skills}</p>
+                <div>
+                  <p className="font-semibold text-gray-800 mb-1">Skills to develop:</p>
+                  <ul className="list-disc list-inside space-y-1">
+                    {item.skill_gaps_to_fill?.map((gap: string, i: number) => (
+                      <li key={i} className="text-gray-600 text-sm">{gap}</li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            ))}
           </div>
         )}
       </div>
