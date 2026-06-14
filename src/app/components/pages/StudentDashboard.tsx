@@ -9,7 +9,6 @@ import {
 } from "lucide-react";
 
 export function StudentDashboard() {
-  // Mock progress data
   const progress = {
     resume: true,
     aptitude: false,
@@ -30,8 +29,6 @@ export function StudentDashboard() {
           <p className="text-gray-600 mb-6">
             Complete all steps to unlock personalized AI-powered career recommendations
           </p>
-          
-          {/* Progress Bar */}
           <div className="mb-4">
             <div className="flex justify-between text-sm mb-2">
               <span className="text-gray-600">Profile Completion</span>
@@ -80,9 +77,7 @@ export function StudentDashboard() {
           {/* Step 2: Aptitude Test */}
           <Link
             to="/student/aptitude"
-            className={`bg-white rounded-xl shadow-sm border border-red-100 p-6 hover:shadow-md transition-all group ${
-              !progress.resume ? "opacity-50 pointer-events-none" : ""
-            }`}
+            className="bg-white rounded-xl shadow-sm border border-red-100 p-6 hover:shadow-md transition-all group"
           >
             <div className="flex items-start justify-between mb-4">
               <div className="bg-red-100 w-12 h-12 rounded-lg flex items-center justify-center">
@@ -111,9 +106,7 @@ export function StudentDashboard() {
           {/* Step 3: Personality Test */}
           <Link
             to="/student/personality"
-            className={`bg-white rounded-xl shadow-sm border border-orange-100 p-6 hover:shadow-md transition-all group ${
-              !progress.aptitude ? "opacity-50 pointer-events-none" : ""
-            }`}
+            className="bg-white rounded-xl shadow-sm border border-orange-100 p-6 hover:shadow-md transition-all group"
           >
             <div className="flex items-start justify-between mb-4">
               <div className="bg-orange-100 w-12 h-12 rounded-lg flex items-center justify-center">
@@ -142,9 +135,7 @@ export function StudentDashboard() {
           {/* Step 4: Career Recommendations */}
           <Link
             to="/student/recommendations"
-            className={`bg-white rounded-xl shadow-sm border border-red-100 p-6 hover:shadow-md transition-all group ${
-              !progress.personality ? "opacity-50 pointer-events-none" : ""
-            }`}
+            className="bg-white rounded-xl shadow-sm border border-red-100 p-6 hover:shadow-md transition-all group"
           >
             <div className="flex items-start justify-between mb-4">
               <div className="bg-red-100 w-12 h-12 rounded-lg flex items-center justify-center">
@@ -160,12 +151,10 @@ export function StudentDashboard() {
               Step 4: AI Career Recommendations
             </h3>
             <p className="text-gray-600 mb-4">
-              Get personalized job recommendations and skill gap analysis based on your profile
+              Get personalized job recommendations and skill gap analysis powered by Gemini AI
             </p>
             <div className="flex items-center text-red-600 group-hover:translate-x-2 transition-transform">
-              <span className="font-semibold">
-                {progress.recommendations ? "View Recommendations" : "Unlock Now"}
-              </span>
+              <span className="font-semibold">Get Recommendations</span>
               <ArrowRight className="w-4 h-4 ml-2" />
             </div>
           </Link>
@@ -176,8 +165,7 @@ export function StudentDashboard() {
           <div className="bg-gradient-to-br from-orange-500 to-red-600 rounded-xl p-6 text-white">
             <h3 className="text-2xl font-bold mb-2">AI-Powered</h3>
             <p className="text-orange-100">
-              Our Gemini-powered AI analyzes thousands of data points to provide accurate career
-              guidance
+              Our Gemini-powered AI analyzes thousands of data points to provide accurate career guidance
             </p>
           </div>
           <div className="bg-gradient-to-br from-red-500 to-orange-600 rounded-xl p-6 text-white">
