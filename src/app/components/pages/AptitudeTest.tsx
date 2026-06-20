@@ -17,7 +17,6 @@ export function AptitudeTest() {
         const res = await API.get("/api/ai/generate-questions")
         setQuestions(res.data.questions)
       } catch {
-        // fallback to default questions if AI fails
         setQuestions([
           {
             id: 1, section: "LRDI",
