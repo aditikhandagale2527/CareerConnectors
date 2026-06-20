@@ -10,9 +10,9 @@ import {
 
 export function StudentDashboard() {
   const progress = {
-    resume: true,
-    aptitude: false,
-    personality: false,
+    resume: !!localStorage.getItem("extractedSkills"),
+    aptitude: !!localStorage.getItem("aptitudeScore"),
+    personality: !!localStorage.getItem("mbtiResult"),
     recommendations: false,
   };
 
