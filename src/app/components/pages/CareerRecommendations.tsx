@@ -2,7 +2,9 @@ import { useState } from "react"
 import { getRecommendations } from "../../src/api/ai"
 
 export function CareerRecommendations() {
-  const [skills, setSkills] = useState("")
+  const savedSkills = localStorage.getItem("extractedSkills")
+  const parsedSkills = savedSkills ? JSON.parse(savedSkills).join(", ") : ""
+  const [skills, setSkills] = useState(parsedSkills)
   const [results, setResults] = useState<any[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
