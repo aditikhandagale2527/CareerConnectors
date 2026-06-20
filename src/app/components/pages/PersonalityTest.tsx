@@ -1,333 +1,202 @@
-import { useState } from "react";
-import { Target, CheckCircle } from "lucide-react";
-import { Link } from "react-router";
+import { useState } from "react"
+import { useNavigate } from "react-router"
+import { CheckCircle } from "lucide-react"
+
+const questions = [
+  { id: 1, question: "At a party, you:", optionA: "Interact with many people including strangers", optionB: "Interact with a few close friends", dimensionA: "E", dimensionB: "I" },
+  { id: 2, question: "You are more:", optionA: "Realistic than speculative", optionB: "Speculative than realistic", dimensionA: "S", dimensionB: "N" },
+  { id: 3, question: "Is it worse to:", optionA: "Have your head in the clouds", optionB: "Be in a rut", dimensionA: "S", dimensionB: "N" },
+  { id: 4, question: "You are more impressed by:", optionA: "Principles", optionB: "Emotions", dimensionA: "T", dimensionB: "F" },
+  { id: 5, question: "You are more drawn toward:", optionA: "The convincing", optionB: "The touching", dimensionA: "T", dimensionB: "F" },
+  { id: 6, question: "Do you prefer to work:", optionA: "To deadlines", optionB: "Just whenever", dimensionA: "J", dimensionB: "P" },
+  { id: 7, question: "Do you tend to choose:", optionA: "Carefully", optionB: "Impulsively", dimensionA: "J", dimensionB: "P" },
+  { id: 8, question: "At parties, do you:", optionA: "Stay late with increasing energy", optionB: "Leave early feeling drained", dimensionA: "E", dimensionB: "I" },
+  { id: 9, question: "You are more attracted to:", optionA: "Sensible people", optionB: "Imaginative people", dimensionA: "S", dimensionB: "N" },
+  { id: 10, question: "Are you more interested in:", optionA: "What is actual", optionB: "What is possible", dimensionA: "S", dimensionB: "N" },
+  { id: 11, question: "In judging others, are you more swayed by:", optionA: "Laws than circumstances", optionB: "Circumstances than laws", dimensionA: "T", dimensionB: "F" },
+  { id: 12, question: "In approaching others, your tendency is to be:", optionA: "Objective", optionB: "Personal", dimensionA: "T", dimensionB: "F" },
+]
+
+const mbtiDescriptions: Record<string, { title: string; description: string; careers: string[] }> = {
+  INTJ: { title: "The Architect", description: "Strategic, independent thinkers who excel at planning and execution.", careers: ["Data Scientist", "Strategic Consultant", "Software Architect"] },
+  INTP: { title: "The Logician", description: "Innovative inventors with an unquenchable thirst for knowledge.", careers: ["Research Analyst", "Software Developer", "Systems Analyst"] },
+  ENTJ: { title: "The Commander", description: "Bold leaders who always find a way to achieve goals.", careers: ["Business Analyst", "Project Manager", "Management Consultant"] },
+  ENTP: { title: "The Debater", description: "Smart and curious thinkers who can't resist a challenge.", careers: ["Product Manager", "Entrepreneur", "Marketing Strategist"] },
+  INFJ: { title: "The Advocate", description: "Quiet visionaries who help others reach their potential.", careers: ["HR Manager", "Counselor", "UX Researcher"] },
+  INFP: { title: "The Mediator", description: "Poetic, kind and altruistic people always eager to help.", careers: ["Content Writer", "UI/UX Designer", "Social Media Manager"] },
+  ENFJ: { title: "The Protagonist", description: "Charismatic and inspiring leaders who captivate their audience.", careers: ["Team Lead", "Training Manager", "Business Development"] },
+  ENFP: { title: "The Campaigner", description: "Enthusiastic, creative free spirits who can always find a reason to smile.", careers: ["Marketing Manager", "Sales Executive", "Brand Strategist"] },
+  ISTJ: { title: "The Logistician", description: "Practical and reliable individuals who value tradition and loyalty.", careers: ["Data Analyst", "Financial Analyst", "Operations Manager"] },
+  ISFJ: { title: "The Defender", description: "Dedicated and warm protectors always ready to defend their loved ones.", careers: ["Customer Success", "Quality Analyst", "Support Engineer"] },
+  ESTJ: { title: "The Executive", description: "Excellent administrators who manage things and people.", careers: ["Operations Manager", "Supply Chain Analyst", "Project Coordinator"] },
+  ESFJ: { title: "The Consul", description: "Caring, social and popular people always eager to help.", careers: ["Account Manager", "HR Executive", "Client Relations"] },
+  ISTP: { title: "The Virtuoso", description: "Bold experimenters and masters of all kinds of tools.", careers: ["Backend Developer", "DevOps Engineer", "Database Administrator"] },
+  ISFP: { title: "The Adventurer", description: "Flexible and charming artists always ready to explore new things.", careers: ["Frontend Developer", "Graphic Designer", "Creative Director"] },
+  ESTP: { title: "The Entrepreneur", description: "Smart, energetic and perceptive people who enjoy living on the edge.", careers: ["Sales Manager", "Business Analyst", "Product Owner"] },
+  ESFP: { title: "The Entertainer", description: "Spontaneous, energetic and enthusiastic entertainers.", careers: ["Digital Marketer", "Community Manager", "Event Coordinator"] },
+}
 
 export function PersonalityTest() {
-  const [currentQuestion, setCurrentQuestion] = useState(0);
-  const [answers, setAnswers] = useState<number[]>([]);
-  const [completed, setCompleted] = useState(false);
-  const [mbtiType, setMbtiType] = useState("");
+  const navigate = useNavigate()
+  const [current, setCurrent] = useState(0)
+  const [answers, setAnswers] = useState<Record<number, string>>({})
+  const [result, setResult] = useState<string | null>(null)
 
-  const questions = [
-    {
-      question: "At a party, you tend to:",
-      options: [
-        "Interact with many people, including strangers",
-        "Interact with a few, known people",
-      ],
-      dimension: "EI", // Extraversion vs Introversion
-    },
-    {
-      question: "You prefer to focus on:",
-      options: [
-        "The basic information and facts",
-        "Patterns and possibilities",
-      ],
-      dimension: "SN", // Sensing vs Intuition
-    },
-    {
-      question: "When making decisions, you rely more on:",
-      options: ["Logic and consistency", "Personal values and emotions"],
-      dimension: "TF", // Thinking vs Feeling
-    },
-    {
-      question: "You prefer a lifestyle that is:",
-      options: ["Structured and planned", "Flexible and spontaneous"],
-      dimension: "JP", // Judging vs Perceiving
-    },
-    {
-      question: "You find it easier to:",
-      options: [
-        "Express yourself through actions",
-        "Express yourself through words",
-      ],
-      dimension: "EI",
-    },
-    {
-      question: "You are more interested in:",
-      options: ["What is actual and real", "What is possible and innovative"],
-      dimension: "SN",
-    },
-    {
-      question: "You make decisions based on:",
-      options: ["Objective analysis", "How it affects people"],
-      dimension: "TF",
-    },
-    {
-      question: "You prefer to:",
-      options: [
-        "Have matters settled and decided",
-        "Keep your options open",
-      ],
-      dimension: "JP",
-    },
-  ];
+  const currentQ = questions[current]
+  const totalQ = questions.length
 
-  const handleAnswer = (optionIndex: number) => {
-    const newAnswers = [...answers, optionIndex];
-    setAnswers(newAnswers);
+  const handleSelect = (dimension: string) => {
+    setAnswers({ ...answers, [currentQ.id]: dimension })
+  }
 
-    if (currentQuestion < questions.length - 1) {
-      setCurrentQuestion(currentQuestion + 1);
-    } else {
-      // Calculate MBTI type
-      calculateMBTI(newAnswers);
-      setCompleted(true);
+  const handleNext = () => {
+    if (current < totalQ - 1) setCurrent(current + 1)
+  }
+
+  const handlePrev = () => {
+    if (current > 0) setCurrent(current - 1)
+  }
+
+  const calculateMBTI = () => {
+    const counts = { E: 0, I: 0, S: 0, N: 0, T: 0, F: 0, J: 0, P: 0 }
+    Object.values(answers).forEach(d => {
+      counts[d as keyof typeof counts]++
+    })
+    const mbti =
+      (counts.E >= counts.I ? "E" : "I") +
+      (counts.S >= counts.N ? "S" : "N") +
+      (counts.T >= counts.F ? "T" : "F") +
+      (counts.J >= counts.P ? "J" : "P")
+    return mbti
+  }
+
+  const handleSubmit = () => {
+    const mbti = calculateMBTI()
+    setResult(mbti)
+    localStorage.setItem("mbtiResult", mbti)
+  }
+
+  if (result) {
+    const info = mbtiDescriptions[result] || {
+      title: "Unique Personality",
+      description: "You have a unique blend of traits.",
+      careers: ["Data Analyst", "Business Analyst", "Consultant"]
     }
-  };
-
-  const calculateMBTI = (answersList: number[]) => {
-    // Simple MBTI calculation based on answers
-    let ei = 0,
-      sn = 0,
-      tf = 0,
-      jp = 0;
-
-    answersList.forEach((answer, index) => {
-      const dimension = questions[index].dimension;
-      if (dimension === "EI") ei += answer === 0 ? 1 : -1;
-      if (dimension === "SN") sn += answer === 0 ? 1 : -1;
-      if (dimension === "TF") tf += answer === 0 ? 1 : -1;
-      if (dimension === "JP") jp += answer === 0 ? 1 : -1;
-    });
-
-    const type =
-      (ei >= 0 ? "E" : "I") +
-      (sn >= 0 ? "S" : "N") +
-      (tf >= 0 ? "T" : "F") +
-      (jp >= 0 ? "J" : "P");
-
-    setMbtiType(type);
-  };
-
-  const mbtiDescriptions: { [key: string]: { title: string; description: string } } = {
-    INTJ: {
-      title: "The Architect",
-      description:
-        "Strategic thinkers with a plan for everything. Excel in analytical and strategic roles.",
-    },
-    INTP: {
-      title: "The Logician",
-      description:
-        "Innovative inventors with an unquenchable thirst for knowledge. Great for research and development.",
-    },
-    ENTJ: {
-      title: "The Commander",
-      description:
-        "Bold, imaginative leaders who find a way or make one. Perfect for management and leadership.",
-    },
-    ENTP: {
-      title: "The Debater",
-      description:
-        "Smart and curious thinkers who cannot resist an intellectual challenge. Ideal for consulting.",
-    },
-    INFJ: {
-      title: "The Advocate",
-      description:
-        "Quiet and mystical, yet inspiring and tireless idealists. Great for counseling and HR.",
-    },
-    INFP: {
-      title: "The Mediator",
-      description:
-        "Poetic, kind, and altruistic people. Excel in creative and helping professions.",
-    },
-    ENFJ: {
-      title: "The Protagonist",
-      description:
-        "Charismatic and inspiring leaders. Perfect for teaching and community management.",
-    },
-    ENFP: {
-      title: "The Campaigner",
-      description:
-        "Enthusiastic, creative, and sociable free spirits. Great for marketing and sales.",
-    },
-    ISTJ: {
-      title: "The Logistician",
-      description:
-        "Practical and fact-minded individuals. Excel in operations and quality assurance.",
-    },
-    ISFJ: {
-      title: "The Defender",
-      description:
-        "Very dedicated and warm protectors. Ideal for healthcare and customer service.",
-    },
-    ESTJ: {
-      title: "The Executive",
-      description:
-        "Excellent administrators managing things and people. Perfect for project management.",
-    },
-    ESFJ: {
-      title: "The Consul",
-      description:
-        "Caring, social people eager to help others. Great for event management and hospitality.",
-    },
-    ISTP: {
-      title: "The Virtuoso",
-      description:
-        "Bold and practical experimenters. Excel in engineering and technical roles.",
-    },
-    ISFP: {
-      title: "The Adventurer",
-      description:
-        "Flexible and charming artists. Ideal for design and creative industries.",
-    },
-    ESTP: {
-      title: "The Entrepreneur",
-      description:
-        "Smart, energetic, and perceptive people. Perfect for business development and sales.",
-    },
-    ESFP: {
-      title: "The Entertainer",
-      description:
-        "Spontaneous, energetic, and enthusiastic people. Great for entertainment and public relations.",
-    },
-  };
-
-  if (completed) {
-    const mbtiInfo = mbtiDescriptions[mbtiType] || {
-      title: "Your Personality Type",
-      description: "A unique combination of traits.",
-    };
 
     return (
-      <div className="min-h-screen py-8 px-4">
-        <div className="max-w-4xl mx-auto">
-          <div className="bg-white rounded-xl shadow-sm border border-green-100 p-8 mb-8">
-            <div className="flex items-center space-x-2 mb-6">
-              <CheckCircle className="w-8 h-8 text-green-600" />
-              <h2 className="text-3xl font-bold text-gray-800">
-                Personality Assessment Completed!
-              </h2>
+      <div className="min-h-screen py-8 px-4 bg-gradient-to-br from-orange-50 to-red-50">
+        <div className="max-w-2xl mx-auto">
+          <div className="bg-white p-8 rounded-xl shadow-sm text-center">
+            <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
+            <h1 className="text-3xl font-bold text-gray-800 mb-2">Your Personality Type</h1>
+
+            <div className="bg-gradient-to-r from-orange-600 to-red-600 rounded-xl p-6 text-white mb-6">
+              <p className="text-6xl font-bold mb-2">{result}</p>
+              <p className="text-xl text-orange-100">{info.title}</p>
             </div>
 
-            <div className="text-center mb-8">
-              <div className="inline-block bg-gradient-to-br from-pink-500 to-purple-600 rounded-2xl p-8 mb-4">
-                <h3 className="text-6xl font-bold text-white">{mbtiType}</h3>
-              </div>
-              <h4 className="text-2xl font-bold text-gray-800 mb-2">
-                {mbtiInfo.title}
-              </h4>
-              <p className="text-lg text-gray-600">{mbtiInfo.description}</p>
+            <p className="text-gray-600 mb-6">{info.description}</p>
+
+            <div className="bg-orange-50 p-4 rounded-lg mb-8 text-left">
+              <p className="font-semibold text-gray-800 mb-2">Recommended Career Paths:</p>
+              <ul className="space-y-1">
+                {info.careers.map((career, i) => (
+                  <li key={i} className="text-orange-600 flex items-center">
+                    <span className="mr-2">→</span>{career}
+                  </li>
+                ))}
+              </ul>
             </div>
 
-            <div className="grid md:grid-cols-4 gap-4 mb-8">
-              <div className="bg-indigo-50 rounded-lg p-4 text-center">
-                <h5 className="font-semibold text-gray-800 mb-2">Energy</h5>
-                <p className="text-2xl font-bold text-indigo-600">
-                  {mbtiType[0] === "E" ? "Extravert" : "Introvert"}
-                </p>
-              </div>
-              <div className="bg-purple-50 rounded-lg p-4 text-center">
-                <h5 className="font-semibold text-gray-800 mb-2">Information</h5>
-                <p className="text-2xl font-bold text-purple-600">
-                  {mbtiType[1] === "S" ? "Sensing" : "Intuition"}
-                </p>
-              </div>
-              <div className="bg-pink-50 rounded-lg p-4 text-center">
-                <h5 className="font-semibold text-gray-800 mb-2">Decisions</h5>
-                <p className="text-2xl font-bold text-pink-600">
-                  {mbtiType[2] === "T" ? "Thinking" : "Feeling"}
-                </p>
-              </div>
-              <div className="bg-violet-50 rounded-lg p-4 text-center">
-                <h5 className="font-semibold text-gray-800 mb-2">Lifestyle</h5>
-                <p className="text-2xl font-bold text-violet-600">
-                  {mbtiType[3] === "J" ? "Judging" : "Perceiving"}
-                </p>
-              </div>
-            </div>
-
-            <div className="bg-gradient-to-r from-pink-50 to-purple-50 rounded-lg p-6 mb-8 border border-pink-100">
-              <h4 className="font-semibold text-gray-800 mb-3">
-                Career Alignment
-              </h4>
-              <p className="text-gray-600">
-                Your {mbtiType} personality type will be integrated with your resume skills and
-                aptitude scores to provide highly personalized career recommendations that match
-                both your abilities and natural preferences.
-              </p>
-            </div>
-
-            <div className="pt-6 border-t border-gray-200">
-              <div className="flex items-center justify-between">
-                <p className="text-gray-600">
-                  All assessments complete! View your AI-powered career recommendations.
-                </p>
-                <Link
-                  to="/student/recommendations"
-                  className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-3 rounded-lg hover:shadow-lg transition-all"
-                >
-                  View Recommendations
-                </Link>
-              </div>
-            </div>
+            <button
+              onClick={() => navigate("/student/recommendations")}
+              className="w-full bg-gradient-to-r from-orange-600 to-red-600 text-white py-3 rounded-lg font-semibold hover:shadow-lg transition-all"
+            >
+              Get AI Career Recommendations →
+            </button>
           </div>
         </div>
       </div>
-    );
+    )
   }
 
-  const question = questions[currentQuestion];
-  const progress = ((currentQuestion + 1) / questions.length) * 100;
-
   return (
-    <div className="min-h-screen py-8 px-4">
-      <div className="max-w-4xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">
-            MBTI Personality Assessment
-          </h1>
-          <div className="flex items-center justify-between">
-            <p className="text-gray-600">
-              Question {currentQuestion + 1} of {questions.length}
-            </p>
+    <div className="min-h-screen py-8 px-4 bg-gradient-to-br from-orange-50 to-red-50">
+      <div className="max-w-2xl mx-auto">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-bold text-orange-600">Personality Test</h1>
+          <span className="bg-orange-100 text-orange-700 px-3 py-1 rounded-full text-sm font-medium">
+            MBTI
+          </span>
+        </div>
+
+        <div className="mb-6">
+          <div className="flex justify-between text-sm text-gray-600 mb-2">
+            <span>Question {current + 1} of {totalQ}</span>
+            <span>{Object.keys(answers).length} answered</span>
           </div>
-          <div className="w-full bg-gray-200 rounded-full h-2 mt-4">
+          <div className="w-full bg-gray-200 rounded-full h-2">
             <div
-              className="bg-gradient-to-r from-pink-600 to-purple-600 h-2 rounded-full transition-all"
-              style={{ width: `${progress}%` }}
+              className="bg-gradient-to-r from-orange-600 to-red-600 h-2 rounded-full transition-all"
+              style={{ width: `${((current + 1) / totalQ) * 100}%` }}
             />
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm border border-pink-100 p-8">
-          <div className="flex items-center space-x-3 mb-6">
-            <Target className="w-8 h-8 text-pink-600" />
-            <h2 className="text-xl font-semibold text-gray-800">
-              {question.question}
-            </h2>
-          </div>
-
-          <div className="space-y-4">
-            {question.options.map((option, index) => (
-              <button
-                key={index}
-                onClick={() => handleAnswer(index)}
-                className="w-full text-left p-6 rounded-lg border-2 border-gray-200 hover:border-pink-400 hover:bg-pink-50 transition-all"
-              >
-                <span className="flex items-center text-lg">
-                  <span className="bg-pink-100 text-pink-600 w-10 h-10 rounded-full flex items-center justify-center mr-4 font-semibold">
-                    {String.fromCharCode(65 + index)}
-                  </span>
-                  {option}
-                </span>
-              </button>
-            ))}
+        <div className="bg-white p-8 rounded-xl shadow-sm mb-6">
+          <h2 className="text-lg font-semibold text-gray-800 mb-6">
+            {current + 1}. {currentQ.question}
+          </h2>
+          <div className="space-y-3">
+            <button
+              onClick={() => handleSelect(currentQ.dimensionA)}
+              className={`w-full text-left px-4 py-3 rounded-lg border-2 transition-all ${
+                answers[currentQ.id] === currentQ.dimensionA
+                  ? "border-orange-500 bg-orange-50 text-orange-700 font-medium"
+                  : "border-gray-200 hover:border-orange-300 text-gray-700"
+              }`}
+            >
+              {currentQ.optionA}
+            </button>
+            <button
+              onClick={() => handleSelect(currentQ.dimensionB)}
+              className={`w-full text-left px-4 py-3 rounded-lg border-2 transition-all ${
+                answers[currentQ.id] === currentQ.dimensionB
+                  ? "border-orange-500 bg-orange-50 text-orange-700 font-medium"
+                  : "border-gray-200 hover:border-orange-300 text-gray-700"
+              }`}
+            >
+              {currentQ.optionB}
+            </button>
           </div>
         </div>
 
-        <div className="mt-6 bg-gradient-to-r from-pink-50 to-purple-50 rounded-xl p-6 border border-pink-100">
-          <h3 className="font-semibold text-gray-800 mb-2">
-            About MBTI Assessment
-          </h3>
-          <p className="text-gray-600 text-sm">
-            The Myers-Briggs Type Indicator (MBTI) assesses your preferences in four dimensions:
-            how you gain energy (E/I), process information (S/N), make decisions (T/F), and
-            approach the outside world (J/P). Your type helps identify careers that align with your
-            natural tendencies.
-          </p>
+        <div className="flex justify-between">
+          <button
+            onClick={handlePrev}
+            disabled={current === 0}
+            className="px-6 py-3 rounded-lg border-2 border-orange-300 text-orange-600 font-semibold disabled:opacity-50 hover:bg-orange-50 transition-all"
+          >
+            ← Previous
+          </button>
+          {current === totalQ - 1 ? (
+            <button
+              onClick={handleSubmit}
+              disabled={Object.keys(answers).length < totalQ}
+              className="px-6 py-3 rounded-lg bg-gradient-to-r from-orange-600 to-red-600 text-white font-semibold disabled:opacity-50 hover:shadow-lg transition-all"
+            >
+              See My Personality Type ✓
+            </button>
+          ) : (
+            <button
+              onClick={handleNext}
+              className="px-6 py-3 rounded-lg bg-gradient-to-r from-orange-600 to-red-600 text-white font-semibold hover:shadow-lg transition-all"
+            >
+              Next →
+            </button>
+          )}
         </div>
       </div>
     </div>
-  );
+  )
 }
