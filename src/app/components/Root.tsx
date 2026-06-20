@@ -1,12 +1,19 @@
-import { Outlet, Link, useLocation } from "react-router";
-import { Brain, Home, Users, Code } from "lucide-react";
+import { Outlet, Link, useLocation, useNavigate } from "react-router";
+import { Brain, Home, Users, Code, LogIn, LogOut } from "lucide-react";
 
 export function Root() {
   const location = useLocation();
-  
+  const navigate = useNavigate();
+  const token = localStorage.getItem("token");
+
   const isActive = (path: string) => {
     if (path === "/") return location.pathname === "/";
     return location.pathname.startsWith(path);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    navigate("/login");
   };
 
   return (
@@ -29,7 +36,7 @@ export function Root() {
             </Link>
 
             {/* Navigation */}
-            <nav className="flex space-x-1">
+            <nav className="flex items-center space-x-1">
               <Link
                 to="/"
                 className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all ${
@@ -74,6 +81,25 @@ export function Root() {
                 <Code className="w-4 h-4" />
                 <span>API</span>
               </Link>
+
+              {/* Login/Logout Button */}
+              {token ? (
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-all"
+                >
+                  <LogOut className="w-4 h-4" />
+                  <span>Logout</span>
+                </button>
+              ) : (
+                <Link
+                  to="/login"
+                  className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-orange-600 text-white hover:bg-orange-700 transition-all"
+                >
+                  <LogIn className="w-4 h-4" />
+                  <span>Login</span>
+                </Link>
+              )}
             </nav>
           </div>
         </div>
