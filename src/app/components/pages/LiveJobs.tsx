@@ -19,7 +19,7 @@ export function LiveJobs() {
         `https://jsearch.p.rapidapi.com/search?query=${encodeURIComponent(query)}&location=${encodeURIComponent(location)}&page=1&num_pages=1`,
         {
           headers: {
-            "X-RapidAPI-Key": "e1147effacmshaa9c3f93c5fa41fp153da3jsnacc6738690ca",
+            "X-RapidAPI-Key": "d57b11cb92msh18a95015d3d7dd0p1c072fjsn71b269faa000",
             "X-RapidAPI-Host": "jsearch.p.rapidapi.com"
           }
         }
