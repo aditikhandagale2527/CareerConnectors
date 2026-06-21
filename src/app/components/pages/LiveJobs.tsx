@@ -16,7 +16,7 @@ export function LiveJobs() {
     setSearched(true)
     try {
       const response = await fetch(
-        `https://jsearch.p.rapidapi.com/search?query=${encodeURIComponent(query + " in " + location)}&page=1&num_pages=1&country=in`,
+        `https://jsearch.p.rapidapi.com/search?query=${encodeURIComponent(query)}&location=${encodeURIComponent(location)}&page=1&num_pages=1`,
         {
           headers: {
             "X-RapidAPI-Key": "e1147effacmshaa9c3f93c5fa41fp153da3jsnacc6738690ca",
@@ -25,8 +25,13 @@ export function LiveJobs() {
         }
       )
       const data = await response.json()
+      console.log("API Response:", data)
       setJobs(data.data || [])
-    } catch {
+      if (!data.data || data.data.length === 0) {
+        setError("No jobs found. Try different keywords.")
+      }
+    } catch (err) {
+      console.error("Error:", err)
       setError("Failed to fetch jobs. Please try again.")
     } finally {
       setLoading(false)
@@ -81,7 +86,7 @@ export function LiveJobs() {
           </div>
         )}
 
-        {!loading && searched && jobs.length === 0 && (
+        {!loading && searched && jobs.length === 0 && !error && (
           <div className="bg-white rounded-xl p-12 text-center shadow-sm">
             <Briefcase className="w-16 h-16 text-orange-300 mx-auto mb-4" />
             <h3 className="text-xl font-bold text-gray-800 mb-2">No Jobs Found</h3>
@@ -123,7 +128,7 @@ export function LiveJobs() {
                   {job.job_description ? job.job_description.slice(0, 200) + "..." : ""}
                 </p>
 
-                {job.job_required_skills && (
+                {job.job_required_skills && job.job_required_skills.length > 0 && (
                   <div className="flex flex-wrap gap-2 mb-4">
                     {job.job_required_skills.slice(0, 5).map((skill: string, i: number) => (
                       <span key={i} className="bg-orange-50 text-orange-600 px-2 py-1 rounded-full text-xs font-medium">
