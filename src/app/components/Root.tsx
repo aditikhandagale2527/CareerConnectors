@@ -1,6 +1,5 @@
 import { Outlet, Link, useLocation, useNavigate } from "react-router";
-import { Brain, Home, Users, Code, LogIn, LogOut } from "lucide-react";
-import { Brain, Home, Users, Code, LogIn, LogOut, Briefcase } from "lucide-react"
+import { Brain, Home, Users, Code, LogIn, LogOut, Briefcase } from "lucide-react";
 
 export function Root() {
   const location = useLocation();
@@ -19,11 +18,9 @@ export function Root() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
-      {/* Navigation Header */}
       <header className="bg-white/80 backdrop-blur-sm border-b border-indigo-100 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            {/* Logo */}
             <Link to="/" className="flex items-center space-x-3 group">
               <div className="bg-gradient-to-br from-orange-600 to-red-600 p-2 rounded-lg">
                 <Brain className="w-6 h-6 text-white" />
@@ -36,7 +33,6 @@ export function Root() {
               </div>
             </Link>
 
-            {/* Navigation */}
             <nav className="flex items-center space-x-1">
               <Link
                 to="/"
@@ -49,6 +45,7 @@ export function Root() {
                 <Home className="w-4 h-4" />
                 <span>Home</span>
               </Link>
+
               <Link
                 to="/student"
                 className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all ${
@@ -60,6 +57,7 @@ export function Root() {
                 <Users className="w-4 h-4" />
                 <span>Student Portal</span>
               </Link>
+
               <Link
                 to="/recruiter"
                 className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all ${
@@ -71,6 +69,19 @@ export function Root() {
                 <Users className="w-4 h-4" />
                 <span>Recruiter Portal</span>
               </Link>
+
+              <Link
+                to="/jobs"
+                className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all ${
+                  isActive("/jobs")
+                    ? "bg-indigo-100 text-indigo-700"
+                    : "text-gray-600 hover:bg-gray-100"
+                }`}
+              >
+                <Briefcase className="w-4 h-4" />
+                <span>Jobs</span>
+              </Link>
+
               <Link
                 to="/api"
                 className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all ${
@@ -83,7 +94,6 @@ export function Root() {
                 <span>API</span>
               </Link>
 
-              {/* Login/Logout Button */}
               {token ? (
                 <button
                   onClick={handleLogout}
@@ -100,29 +110,16 @@ export function Root() {
                   <LogIn className="w-4 h-4" />
                   <span>Login</span>
                 </Link>
-                <Link
-            to="/jobs"
-            className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all ${
-              isActive("/jobs")
-                ? "bg-indigo-100 text-indigo-700"
-                : "text-gray-600 hover:bg-gray-100"
-            }`}
-          >
-            <Briefcase className="w-4 h-4" />
-            <span>Jobs</span>
-          </Link>
               )}
             </nav>
           </div>
         </div>
       </header>
 
-      {/* Main Content */}
       <main>
         <Outlet />
       </main>
 
-      {/* Footer */}
       <footer className="bg-white/80 backdrop-blur-sm border-t border-indigo-100 mt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center text-gray-600">
