@@ -1,5 +1,5 @@
 import { Outlet, Link, useLocation, useNavigate } from "react-router";
-import { Brain, Home, Users, Code, LogIn, LogOut, Briefcase } from "lucide-react";
+import { Brain, Home, Users, Code, LogIn, LogOut, Briefcase, Search } from "lucide-react"
 
 export function Root() {
   const location = useLocation();
