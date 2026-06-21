@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { Search, MapPin, Briefcase, ExternalLink } from "lucide-react"
+import { Search, MapPin, Briefcase } from "lucide-react"
 
 export function LiveJobs() {
   const [query, setQuery] = useState("")
@@ -19,7 +19,7 @@ export function LiveJobs() {
         `https://jsearch.p.rapidapi.com/search?query=${encodeURIComponent(query + " in " + location)}&page=1&num_pages=1&country=in`,
         {
           headers: {
-            "X-RapidAPI-Key": "e1147effacmshaa9c3f93c5fa41fp153da3jsnacc6738690ca",
+            "X-RapidAPI-Key": "YOUR_RAPIDAPI_KEY_HERE",
             "X-RapidAPI-Host": "jsearch.p.rapidapi.com"
           }
         }
@@ -39,7 +39,6 @@ export function LiveJobs() {
         <h1 className="text-3xl font-bold text-orange-600 mb-2">Live Job Listings</h1>
         <p className="text-gray-600 mb-6">Real jobs from Indeed, LinkedIn and more</p>
 
-        {/* Search Bar */}
         <div className="bg-white p-4 rounded-xl shadow-sm mb-6 flex gap-3">
           <div className="flex-1 relative">
             <Search className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
@@ -71,8 +70,9 @@ export function LiveJobs() {
           </button>
         </div>
 
-        {/* Results */}
-        {error && <p className="text-red-500 mb-4">{error}</p>}
+        {error && (
+          <p className="text-red-500 mb-4">{error}</p>
+        )}
 
         {loading && (
           <div className="text-center py-12">
@@ -92,7 +92,7 @@ export function LiveJobs() {
         {!loading && jobs.length > 0 && (
           <div className="space-y-4">
             <p className="text-gray-600 text-sm">{jobs.length} jobs found</p>
-            {jobs.map((job, index) => (
+            {jobs.map((job: any, index: number) => (
               <div key={index} className="bg-white p-6 rounded-xl shadow-sm border border-orange-100 hover:shadow-md transition-all">
                 <div className="flex justify-between items-start mb-3">
                   <div className="flex-1">
@@ -117,15 +117,10 @@ export function LiveJobs() {
                     <Briefcase className="w-4 h-4 mr-1" />
                     {job.job_employment_type || "Full Time"}
                   </span>
-                  {job.job_posted_at_datetime_utc && (
-                    <span>
-                      {new Date(job.job_posted_at_datetime_utc).toLocaleDateString()}
-                    </span>
-                  )}
                 </div>
 
-                <p className="text-gray-600 text-sm mb-4 line-clamp-2">
-                  {job.job_description?.slice(0, 200)}...
+                <p className="text-gray-600 text-sm mb-4">
+                  {job.job_description ? job.job_description.slice(0, 200) + "..." : ""}
                 </p>
 
                 {job.job_required_skills && (
@@ -138,16 +133,12 @@ export function LiveJobs() {
                   </div>
                 )}
 
-                
-                 href={job.job_apply_link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center bg-gradient-to-r from-orange-600 to-red-600 text-white px-6 py-2 rounded-lg text-sm font-semibold hover:shadow-lg transition-all"
-                  onClick={(e) => e.stopPropagation()}
+                <button
+                  onClick={() => window.open(job.job_apply_link, "_blank")}
+                  className="bg-gradient-to-r from-orange-600 to-red-600 text-white px-6 py-2 rounded-lg text-sm font-semibold hover:shadow-lg transition-all"
                 >
-                  <span>Apply Now</span>
-                  <ExternalLink className="w-4 h-4 ml-2" />
-                </a>
+                  Apply Now
+                </button>
               </div>
             ))}
           </div>
