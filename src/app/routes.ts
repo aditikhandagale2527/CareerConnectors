@@ -11,6 +11,7 @@ import { ApiDocs } from "./components/pages/ApiDocs";
 import { Login } from "./components/pages/Login";
 import { Register } from "./components/pages/Register";
 import { JobListings } from "./components/pages/JobListings";
+import { LiveJobs } from "./components/pages/LiveJobs";
 
 export const router = createBrowserRouter([
   {
