@@ -82,6 +82,18 @@ export function Root() {
                 <span>Jobs</span>
               </Link>
 
+             <Link
+              to="/livejobs"
+              className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all ${
+                isActive("/livejobs")
+                  ? "bg-indigo-100 text-indigo-700"
+                  : "text-gray-600 hover:bg-gray-100"
+              }`}
+            >
+              <Search className="w-4 h-4" />
+              <span>Live Jobs</span>
+            </Link>
+
               <Link
                 to="/api"
                 className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all ${
