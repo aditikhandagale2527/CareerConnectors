@@ -29,6 +29,7 @@ export const router = createBrowserRouter([
       { path: "login", Component: Login },
       { path: "register", Component: Register },
       { path: "jobs", Component: JobListings },
+      { path: "livejobs", Component: LiveJobs },
     ],
   },
 ]);
