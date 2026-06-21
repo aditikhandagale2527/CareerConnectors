@@ -1,5 +1,6 @@
 import { Outlet, Link, useLocation, useNavigate } from "react-router";
 import { Brain, Home, Users, Code, LogIn, LogOut } from "lucide-react";
+import { Brain, Home, Users, Code, LogIn, LogOut, Briefcase } from "lucide-react"
 
 export function Root() {
   const location = useLocation();
@@ -99,6 +100,17 @@ export function Root() {
                   <LogIn className="w-4 h-4" />
                   <span>Login</span>
                 </Link>
+                <Link
+            to="/jobs"
+            className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all ${
+              isActive("/jobs")
+                ? "bg-indigo-100 text-indigo-700"
+                : "text-gray-600 hover:bg-gray-100"
+            }`}
+          >
+            <Briefcase className="w-4 h-4" />
+            <span>Jobs</span>
+          </Link>
               )}
             </nav>
           </div>
