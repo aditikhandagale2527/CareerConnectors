@@ -139,12 +139,13 @@ export function LiveJobs() {
                 )}
 
                 
-                  href={job.job_apply_link}
+                 href={job.job_apply_link}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center bg-gradient-to-r from-orange-600 to-red-600 text-white px-6 py-2 rounded-lg text-sm font-semibold hover:shadow-lg transition-all"
+                  onClick={(e) => e.stopPropagation()}
                 >
-                  Apply Now
+                  <span>Apply Now</span>
                   <ExternalLink className="w-4 h-4 ml-2" />
                 </a>
               </div>
