@@ -3,7 +3,7 @@ import { Search, MapPin, Briefcase } from "lucide-react"
 
 export function LiveJobs() {
   const [query, setQuery] = useState("")
-  const [location, setLocation] = useState("India")
+  const [location, setLocation] = useState("Mumbai")
   const [jobs, setJobs] = useState<any[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
@@ -15,19 +15,15 @@ export function LiveJobs() {
     setError("")
     setSearched(true)
     try {
+      const APP_ID = "6ebc4d79"
+      const APP_KEY = "af35a7e9114699045882fad30f1bc05a"
       const response = await fetch(
-        `https://jsearch.p.rapidapi.com/search?query=${encodeURIComponent(query)}&location=${encodeURIComponent(location)}&page=1&num_pages=1`,
-        {
-          headers: {
-            "X-RapidAPI-Key": "e1147effacmshaa9c3f93c5fa41fp153da3jsnacc6738690c",
-            "X-RapidAPI-Host": "jsearch.p.rapidapi.com"
-          }
-        }
+        `https://api.adzuna.com/v1/api/jobs/in/search/1?app_id=${APP_ID}&app_key=${APP_KEY}&results_per_page=10&what=${encodeURIComponent(query)}&where=${encodeURIComponent(location)}&content-type=application/json`
       )
       const data = await response.json()
       console.log("API Response:", data)
-      setJobs(data.data || [])
-      if (!data.data || data.data.length === 0) {
+      setJobs(data.results || [])
+      if (!data.results || data.results.length === 0) {
         setError("No jobs found. Try different keywords.")
       }
     } catch (err) {
@@ -42,7 +38,7 @@ export function LiveJobs() {
     <div className="min-h-screen py-8 px-4 bg-gradient-to-br from-orange-50 to-red-50">
       <div className="max-w-4xl mx-auto">
         <h1 className="text-3xl font-bold text-orange-600 mb-2">Live Job Listings</h1>
-        <p className="text-gray-600 mb-6">Real jobs from Indeed, LinkedIn and more</p>
+        <p className="text-gray-600 mb-6">Real jobs from across India</p>
 
         <div className="bg-white p-4 rounded-xl shadow-sm mb-6 flex gap-3">
           <div className="flex-1 relative">
@@ -52,7 +48,7 @@ export function LiveJobs() {
               value={query}
               onChange={e => setQuery(e.target.value)}
               onKeyDown={e => e.key === "Enter" && searchJobs()}
-              placeholder="Job title or skills (e.g. Data Analyst)"
+              placeholder="Job title (e.g. Data Analyst)"
               className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
             />
           </div>
@@ -101,45 +97,33 @@ export function LiveJobs() {
               <div key={index} className="bg-white p-6 rounded-xl shadow-sm border border-orange-100 hover:shadow-md transition-all">
                 <div className="flex justify-between items-start mb-3">
                   <div className="flex-1">
-                    <h3 className="text-xl font-bold text-gray-800 mb-1">{job.job_title}</h3>
-                    <p className="text-orange-600 font-medium">{job.employer_name}</p>
+                    <h3 className="text-xl font-bold text-gray-800 mb-1">{job.title}</h3>
+                    <p className="text-orange-600 font-medium">{job.company?.display_name}</p>
                   </div>
-                  {job.employer_logo && (
-                    <img
-                      src={job.employer_logo}
-                      alt={job.employer_name}
-                      className="w-12 h-12 object-contain rounded-lg ml-4"
-                    />
-                  )}
                 </div>
 
                 <div className="flex items-center gap-4 text-sm text-gray-500 mb-3">
                   <span className="flex items-center">
                     <MapPin className="w-4 h-4 mr-1" />
-                    {job.job_city || job.job_country || "Remote"}
+                    {job.location?.display_name || "India"}
                   </span>
                   <span className="flex items-center">
                     <Briefcase className="w-4 h-4 mr-1" />
-                    {job.job_employment_type || "Full Time"}
+                    {job.contract_time || "Full Time"}
                   </span>
+                  {job.salary_min && (
+                    <span className="text-green-600 font-medium">
+                      ₹{Math.round(job.salary_min).toLocaleString()} - ₹{Math.round(job.salary_max).toLocaleString()}
+                    </span>
+                  )}
                 </div>
 
                 <p className="text-gray-600 text-sm mb-4">
-                  {job.job_description ? job.job_description.slice(0, 200) + "..." : ""}
+                  {job.description ? job.description.slice(0, 200) + "..." : ""}
                 </p>
 
-                {job.job_required_skills && job.job_required_skills.length > 0 && (
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    {job.job_required_skills.slice(0, 5).map((skill: string, i: number) => (
-                      <span key={i} className="bg-orange-50 text-orange-600 px-2 py-1 rounded-full text-xs font-medium">
-                        {skill}
-                      </span>
-                    ))}
-                  </div>
-                )}
-
                 <button
-                  onClick={() => window.open(job.job_apply_link, "_blank")}
+                  onClick={() => window.open(job.redirect_url, "_blank")}
                   className="bg-gradient-to-r from-orange-600 to-red-600 text-white px-6 py-2 rounded-lg text-sm font-semibold hover:shadow-lg transition-all"
                 >
                   Apply Now
