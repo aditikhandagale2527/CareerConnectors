@@ -42,7 +42,6 @@ export function Applicants() {
   return (
     <div className="min-h-screen py-8 px-4 bg-gradient-to-br from-orange-50 to-red-50">
       <div className="max-w-4xl mx-auto">
-
         <button
           onClick={() => navigate("/recruiter")}
           className="flex items-center space-x-2 text-orange-600 mb-6 hover:text-orange-700"
@@ -72,14 +71,14 @@ export function Applicants() {
                   <div>
                     <h3 className="text-lg font-bold text-gray-800">{app.student_name || "Applicant"}</h3>
                     <p className="text-gray-500 text-sm">{app.student_email}</p>
-                    <p className="text-gray-400 text-xs mt-1">Applied: {new Date(app.applied_at).toLocaleDateString()}</p>
+                    <p className="text-gray-400 text-xs mt-1">
+                      Applied: {new Date(app.applied_at).toLocaleDateString()}
+                    </p>
                   </div>
                   <span className={`px-3 py-1 rounded-full text-sm font-medium ${statusColor(app.status)}`}>
                     {app.status || "pending"}
                   </span>
                 </div>
-
-                {/* Action Buttons */}
                 <div className="flex gap-3 pt-3 border-t border-gray-100">
                   <button
                     onClick={() => updateStatus(app._id, "shortlisted")}
