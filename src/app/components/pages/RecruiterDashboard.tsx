@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react"
 import { Link } from "react-router"
 import { Briefcase, Plus, Users, CheckCircle, Clock, TrendingUp } from "lucide-react"
-import API from "../api/config"
+import API from "../../../api/config"
 
 export function RecruiterDashboard() {
   const [stats, setStats] = useState({
