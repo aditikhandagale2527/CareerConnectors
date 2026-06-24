@@ -81,4 +81,98 @@ export function RecruiterDashboard() {
             <div className="bg-orange-100 w-10 h-10 rounded-lg flex items-center justify-center mb-3">
               <Briefcase className="w-5 h-5 text-orange-600" />
             </div>
-            <p className="text-2xl
+            <p className="text-2xl font-bold text-gray-800">{stats.total_jobs}</p>
+            <p className="text-gray-500 text-sm">Jobs Posted</p>
+          </div>
+          <div className="bg-white p-5 rounded-xl shadow-sm border border-orange-100">
+            <div className="bg-red-100 w-10 h-10 rounded-lg flex items-center justify-center mb-3">
+              <Users className="w-5 h-5 text-red-600" />
+            </div>
+            <p className="text-2xl font-bold text-gray-800">{stats.total_applicants}</p>
+            <p className="text-gray-500 text-sm">Total Applicants</p>
+          </div>
+          <div className="bg-white p-5 rounded-xl shadow-sm border border-orange-100">
+            <div className="bg-green-100 w-10 h-10 rounded-lg flex items-center justify-center mb-3">
+              <CheckCircle className="w-5 h-5 text-green-600" />
+            </div>
+            <p className="text-2xl font-bold text-gray-800">{stats.shortlisted}</p>
+            <p className="text-gray-500 text-sm">Shortlisted</p>
+          </div>
+          <div className="bg-white p-5 rounded-xl shadow-sm border border-orange-100">
+            <div className="bg-yellow-100 w-10 h-10 rounded-lg flex items-center justify-center mb-3">
+              <Clock className="w-5 h-5 text-yellow-600" />
+            </div>
+            <p className="text-2xl font-bold text-gray-800">{stats.pending}</p>
+            <p className="text-gray-500 text-sm">Pending Review</p>
+          </div>
+        </div>
+
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-bold text-gray-800">My Job Postings</h2>
+          <TrendingUp className="w-5 h-5 text-orange-400" />
+        </div>
+
+        {loading ? (
+          <div className="text-center py-12">
+            <div className="w-12 h-12 border-4 border-orange-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading...</p>
+          </div>
+        ) : jobs.length === 0 ? (
+          <div className="bg-white rounded-xl p-12 text-center shadow-sm">
+            <Briefcase className="w-16 h-16 text-orange-300 mx-auto mb-4" />
+            <h3 className="text-xl font-bold text-gray-800 mb-2">No Jobs Posted Yet</h3>
+            <p className="text-gray-600 mb-6">Click "Post a Job" to add your first listing</p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {jobs.map((job) => (
+              <div key={job._id} className="bg-white p-6 rounded-xl shadow-sm border border-orange-100 hover:shadow-md transition-all">
+                <div className="flex justify-between items-start mb-3">
+                  <div>
+                    <h3 className="text-xl font-bold text-gray-800">{job.title}</h3>
+                    <p className="text-orange-600 font-medium">{job.company}</p>
+                    <p className="text-gray-500 text-sm">{job.location} • {job.job_type}</p>
+                  </div>
+                  <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                    job.status === "active" ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-600"
+                  }`}>
+                    {job.status === "active" ? "Active" : "Closed"}
+                  </span>
+                </div>
+                <p className="text-gray-600 mb-3 text-sm">{job.description}</p>
+                <div className="flex flex-wrap gap-2 mb-4">
+                  {job.skills_required?.map((skill: string, i: number) => (
+                    <span key={i} className="bg-red-50 text-red-600 px-2 py-1 rounded-full text-xs font-medium">
+                      {skill}
+                    </span>
+                  ))}
+                </div>
+                <div className="flex gap-3 pt-3 border-t border-gray-100">
+                  <Link
+                    to={`/recruiter/jobs/${job._id}/applicants`}
+                    className="flex items-center space-x-1 bg-orange-50 text-orange-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-orange-100 transition-all"
+                  >
+                    <Users className="w-4 h-4" />
+                    <span>View Applicants</span>
+                  </Link>
+                  <button
+                    onClick={() => handleToggleStatus(job._id, job.status)}
+                    className="bg-gray-50 text-gray-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-100 transition-all"
+                  >
+                    {job.status === "active" ? "Close Job" : "Reopen Job"}
+                  </button>
+                  <button
+                    onClick={() => handleDelete(job._id)}
+                    className="bg-red-50 text-red-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-red-100 transition-all ml-auto"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
