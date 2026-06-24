@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { useNavigate } from "react-router"
 import { ArrowLeft } from "lucide-react"
-import API from "../../../api/config"
+import API from "../../src/api/config"
 
 export function PostJob() {
   const navigate = useNavigate()
