@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react"
 import { useParams, useNavigate } from "react-router"
 import { ArrowLeft, User } from "lucide-react"
-import API from "../../../api/config"
+import API from "../../src/api/config"
 
 export function Applicants() {
   const { jobId } = useParams()
