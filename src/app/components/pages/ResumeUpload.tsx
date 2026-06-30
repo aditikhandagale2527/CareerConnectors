@@ -1,7 +1,14 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useNavigate } from "react-router"
 import { FileUp, CheckCircle, ArrowRight } from "lucide-react"
 import API from "../../src/api/config"
+
+const LOADING_MESSAGES = [
+  "Waking up the AI engine...",
+  "Reading your resume...",
+  "Extracting your skills...",
+  "Almost done, finalizing results..."
+]
 
 export function ResumeUpload() {
   const navigate = useNavigate()
@@ -10,6 +17,18 @@ export function ResumeUpload() {
   const [skills, setSkills] = useState<string[]>([])
   const [error, setError] = useState("")
   const [done, setDone] = useState(false)
+  const [loadingMessageIndex, setLoadingMessageIndex] = useState(0)
+
+  useEffect(() => {
+    if (!loading) return
+    setLoadingMessageIndex(0)
+    const interval = setInterval(() => {
+      setLoadingMessageIndex((prev) =>
+        prev < LOADING_MESSAGES.length - 1 ? prev + 1 : prev
+      )
+    }, 4000)
+    return () => clearInterval(interval)
+  }, [loading])
 
   const handleUpload = async () => {
     if (!file) return
@@ -50,7 +69,9 @@ export function ResumeUpload() {
           <div className="bg-white p-8 rounded-xl shadow-sm">
             {/* Upload Area */}
             <div
-              className="border-2 border-dashed border-orange-300 rounded-xl p-8 text-center mb-6 hover:border-orange-500 transition-colors cursor-pointer"
+              className={`border-2 border-dashed border-orange-300 rounded-xl p-8 text-center mb-6 transition-colors ${
+                loading ? "opacity-50 pointer-events-none" : "hover:border-orange-500 cursor-pointer"
+              }`}
               onClick={() => document.getElementById("fileInput")?.click()}
             >
               <FileUp className="w-12 h-12 text-orange-400 mx-auto mb-4" />
@@ -63,6 +84,7 @@ export function ResumeUpload() {
                 type="file"
                 accept=".pdf"
                 className="hidden"
+                disabled={loading}
                 onChange={(e) => setFile(e.target.files?.[0] || null)}
               />
             </div>
@@ -74,10 +96,27 @@ export function ResumeUpload() {
             <button
               onClick={handleUpload}
               disabled={!file || loading}
-              className="w-full bg-gradient-to-r from-orange-600 to-red-600 text-white py-3 rounded-lg font-semibold hover:shadow-lg transition-all disabled:opacity-50"
+              className="w-full bg-gradient-to-r from-orange-600 to-red-600 text-white py-3 rounded-lg font-semibold hover:shadow-lg transition-all disabled:opacity-50 flex items-center justify-center space-x-2"
             >
-              {loading ? "Extracting Skills with AI..." : "Upload & Extract Skills"}
+              {loading ? (
+                <>
+                  <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                  <span>Extracting Skills with AI...</span>
+                </>
+              ) : (
+                <span>Upload & Extract Skills</span>
+              )}
             </button>
+
+            {loading && (
+              <div className="mt-6 bg-orange-50 rounded-xl p-6 text-center">
+                <div className="w-10 h-10 border-4 border-orange-600 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
+                <p className="text-gray-700 font-medium mb-1">{LOADING_MESSAGES[loadingMessageIndex]}</p>
+                <p className="text-gray-400 text-sm">
+                  This can take up to a minute on first use as our AI server wakes up. Thanks for your patience!
+                </p>
+              </div>
+            )}
           </div>
         ) : (
           <div className="bg-white p-8 rounded-xl shadow-sm">
