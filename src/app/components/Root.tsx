@@ -1,5 +1,5 @@
 import { Outlet, Link, useLocation, useNavigate } from "react-router";
-import { Brain, Home, Users, Code, LogIn, LogOut, Briefcase, Search } from "lucide-react"
+import { Brain, Home, Users, LogIn, LogOut, Briefcase, Search } from "lucide-react"
 
 export function Root() {
   const location = useLocation();
@@ -93,18 +93,6 @@ export function Root() {
               <Search className="w-4 h-4" />
               <span>Live Jobs</span>
             </Link>
-
-              <Link
-                to="/api"
-                className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all ${
-                  isActive("/api")
-                    ? "bg-indigo-100 text-indigo-700"
-                    : "text-gray-600 hover:bg-gray-100"
-                }`}
-              >
-                <Code className="w-4 h-4" />
-                <span>API</span>
-              </Link>
 
               {token ? (
                 <button
