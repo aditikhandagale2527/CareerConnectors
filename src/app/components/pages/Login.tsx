@@ -15,7 +15,16 @@ export function Login() {
     try {
       const data = await loginUser({ email, password })
       localStorage.setItem("token", data.access_token)
-      navigate("/student")
+
+      // Decode token to get role and redirect correctly
+      const payload = JSON.parse(atob(data.access_token.split(".")[1]))
+      const role = payload.role
+
+      if (role === "recruiter") {
+        navigate("/recruiter")
+      } else {
+        navigate("/student")
+      }
     } catch (err: any) {
       setError("Invalid email or password")
     } finally {
@@ -43,10 +52,9 @@ export function Login() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-              placeholder="aditi@example.com"
+              placeholder="Enter your email"
             />
           </div>
-
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
             <input
@@ -57,13 +65,19 @@ export function Login() {
               placeholder="••••••••"
             />
           </div>
-
           <button
             onClick={handleLogin}
-            disabled={loading}
-            className="w-full bg-gradient-to-r from-orange-600 to-red-600 text-white py-3 rounded-lg font-semibold hover:shadow-lg transition-all disabled:opacity-50"
+            disabled={loading || !email || !password}
+            className="w-full bg-gradient-to-r from-orange-600 to-red-600 text-white py-3 rounded-lg font-semibold hover:shadow-lg transition-all disabled:opacity-50 flex items-center justify-center space-x-2"
           >
-            {loading ? "Logging in..." : "Login"}
+            {loading ? (
+              <>
+                <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                <span>Logging in...</span>
+              </>
+            ) : (
+              <span>Login</span>
+            )}
           </button>
         </div>
 
