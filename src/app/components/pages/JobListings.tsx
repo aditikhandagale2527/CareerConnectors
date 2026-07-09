@@ -1,14 +1,20 @@
 import { useState, useEffect } from "react"
-import { Briefcase, MapPin, Search } from "lucide-react"
+import { Briefcase, MapPin, Search, CheckCircle } from "lucide-react"
+import { useNavigate } from "react-router"
 import API from "../../src/api/config"
 
 export function JobListings() {
   const [jobs, setJobs] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState("")
+  const [applying, setApplying] = useState<string | null>(null)
+  const [appliedJobs, setAppliedJobs] = useState<string[]>([])
+  const navigate = useNavigate()
 
   useEffect(() => {
     fetchJobs()
+    const saved = localStorage.getItem("appliedJobs")
+    if (saved) setAppliedJobs(JSON.parse(saved))
   }, [])
 
   const fetchJobs = async () => {
@@ -22,10 +28,37 @@ export function JobListings() {
     }
   }
 
+  const handleApply = async (jobId: string) => {
+    const token = localStorage.getItem("token")
+    if (!token) {
+      alert("Please login first to apply for jobs!")
+      navigate("/login")
+      return
+    }
+
+    if (appliedJobs.includes(jobId)) {
+      alert("You have already applied for this job!")
+      return
+    }
+
+    setApplying(jobId)
+    try {
+      await API.post("/api/applications/apply", { job_id: jobId })
+      const updated = [...appliedJobs, jobId]
+      setAppliedJobs(updated)
+      localStorage.setItem("appliedJobs", JSON.stringify(updated))
+      alert("Successfully applied! The recruiter will review your application.")
+    } catch {
+      alert("Failed to apply. Please try again.")
+    } finally {
+      setApplying(null)
+    }
+  }
+
   const filtered = jobs.filter(job =>
-    job.title.toLowerCase().includes(search.toLowerCase()) ||
-    job.company.toLowerCase().includes(search.toLowerCase()) ||
-    job.location.toLowerCase().includes(search.toLowerCase())
+    job.title?.toLowerCase().includes(search.toLowerCase()) ||
+    job.company?.toLowerCase().includes(search.toLowerCase()) ||
+    job.location?.toLowerCase().includes(search.toLowerCase())
   )
 
   return (
@@ -59,19 +92,33 @@ export function JobListings() {
           </div>
         ) : (
           <div className="space-y-4">
-            {filtered.map((job, index) => (
-              <div key={index} className="bg-white p-6 rounded-xl shadow-sm border border-orange-100 hover:shadow-md transition-all">
+            {filtered.map((job) => (
+              <div key={job._id} className="bg-white p-6 rounded-xl shadow-sm border border-orange-100 hover:shadow-md transition-all">
                 <div className="flex justify-between items-start mb-3">
                   <div>
                     <h3 className="text-xl font-bold text-gray-800">{job.title}</h3>
                     <p className="text-orange-600 font-medium">{job.company}</p>
+                    {job.job_type && (
+                      <span className="text-xs bg-orange-100 text-orange-600 px-2 py-1 rounded-full mt-1 inline-block">
+                        {job.job_type}
+                      </span>
+                    )}
                   </div>
-                  <div className="flex items-center text-gray-500 text-sm">
-                    <MapPin className="w-4 h-4 mr-1" />
-                    {job.location}
+                  <div className="flex flex-col items-end gap-1">
+                    <div className="flex items-center text-gray-500 text-sm">
+                      <MapPin className="w-4 h-4 mr-1" />
+                      {job.location}
+                    </div>
+                    {job.salary_range && (
+                      <span className="text-xs text-green-600 font-medium">
+                        💰 {job.salary_range}
+                      </span>
+                    )}
                   </div>
                 </div>
+
                 <p className="text-gray-600 mb-4 text-sm">{job.description}</p>
+
                 <div className="flex flex-wrap gap-2 mb-4">
                   {job.skills_required?.map((skill: string, i: number) => (
                     <span key={i} className="bg-orange-50 text-orange-600 px-2 py-1 rounded-full text-xs font-medium">
@@ -79,9 +126,34 @@ export function JobListings() {
                     </span>
                   ))}
                 </div>
-                <button className="bg-gradient-to-r from-orange-600 to-red-600 text-white px-6 py-2 rounded-lg text-sm font-semibold hover:shadow-lg transition-all">
-                  Apply Now
-                </button>
+
+                {job.deadline && (
+                  <p className="text-xs text-gray-400 mb-3">
+                    📅 Apply by: {new Date(job.deadline).toLocaleDateString()}
+                  </p>
+                )}
+
+                {appliedJobs.includes(job._id) ? (
+                  <div className="flex items-center space-x-2 text-green-600 bg-green-50 px-4 py-2 rounded-lg w-fit">
+                    <CheckCircle className="w-4 h-4" />
+                    <span className="text-sm font-medium">Applied!</span>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => handleApply(job._id)}
+                    disabled={applying === job._id}
+                    className="bg-gradient-to-r from-orange-600 to-red-600 text-white px-6 py-2 rounded-lg text-sm font-semibold hover:shadow-lg transition-all disabled:opacity-50 flex items-center space-x-2"
+                  >
+                    {applying === job._id ? (
+                      <>
+                        <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                        <span>Applying...</span>
+                      </>
+                    ) : (
+                      <span>Apply Now</span>
+                    )}
+                  </button>
+                )}
               </div>
             ))}
           </div>
