@@ -9,6 +9,7 @@ export function JobListings() {
   const [search, setSearch] = useState("")
   const [applying, setApplying] = useState<string | null>(null)
   const [appliedJobs, setAppliedJobs] = useState<string[]>([])
+  const [applyResult, setApplyResult] = useState<{jobId: string, score: number, status: string} | null>(null)
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -41,15 +42,39 @@ export function JobListings() {
       return
     }
 
+    // Get extracted skills from localStorage
+    const savedSkills = localStorage.getItem("extractedSkills")
+    const skills = savedSkills ? JSON.parse(savedSkills) : []
+
+    if (skills.length === 0) {
+      alert("Please upload your resume first so we can match your skills with the job!")
+      navigate("/student/resume")
+      return
+    }
+
     setApplying(jobId)
     try {
-      await API.post("/api/applications/apply", { job_id: jobId })
+      const res = await API.post("/api/applications/apply", {
+        job_id: jobId,
+        skills: skills
+      })
+
       const updated = [...appliedJobs, jobId]
       setAppliedJobs(updated)
       localStorage.setItem("appliedJobs", JSON.stringify(updated))
-      alert("Successfully applied! The recruiter will review your application.")
-    } catch {
-      alert("Failed to apply. Please try again.")
+
+      setApplyResult({
+        jobId: jobId,
+        score: res.data.match_score,
+        status: res.data.status
+      })
+
+    } catch (err: any) {
+      if (err?.response?.data?.detail === "Already applied") {
+        alert("You have already applied for this job!")
+      } else {
+        alert("Failed to apply. Please try again.")
+      }
     } finally {
       setApplying(null)
     }
@@ -66,6 +91,44 @@ export function JobListings() {
       <div className="max-w-4xl mx-auto">
         <h1 className="text-3xl font-bold text-orange-600 mb-2">Job Listings</h1>
         <p className="text-gray-600 mb-6">Find your perfect career opportunity</p>
+
+        {/* Match Result Popup */}
+        {applyResult && (
+          <div className={`mb-6 p-5 rounded-xl border-2 ${
+            applyResult.status === "shortlisted"
+              ? "bg-green-50 border-green-400"
+              : "bg-yellow-50 border-yellow-400"
+          }`}>
+            <div className="flex items-start space-x-3">
+              <div className={`text-3xl`}>
+                {applyResult.status === "shortlisted" ? "🎉" : "📋"}
+              </div>
+              <div>
+                <h3 className={`font-bold text-lg ${
+                  applyResult.status === "shortlisted" ? "text-green-700" : "text-yellow-700"
+                }`}>
+                  {applyResult.status === "shortlisted"
+                    ? "Congratulations! You've been shortlisted! 🎉"
+                    : "Application Submitted!"}
+                </h3>
+                <p className="text-gray-600 mt-1">
+                  Your skill match score: <span className="font-bold text-lg">{applyResult.score}%</span>
+                </p>
+                <p className="text-gray-500 text-sm mt-1">
+                  {applyResult.status === "shortlisted"
+                    ? "Your skills match well with this job. The recruiter has been notified!"
+                    : "Your application is under review. Keep improving your skills!"}
+                </p>
+                <button
+                  onClick={() => setApplyResult(null)}
+                  className="mt-3 text-sm text-gray-400 hover:text-gray-600 underline"
+                >
+                  Dismiss
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Search */}
         <div className="relative mb-6">
