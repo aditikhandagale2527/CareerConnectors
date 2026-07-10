@@ -43,33 +43,33 @@ export function Register() {
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
+              autoComplete="off"
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-              placeholder="Aditi Khandagale"
+              placeholder="Enter your full name"
             />
           </div>
-
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              autoComplete="off"
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-              placeholder="aditi@example.com"
+              placeholder="Enter your email"
             />
           </div>
-
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              autoComplete="new-password"
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
               placeholder="••••••••"
             />
           </div>
-
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">I am a</label>
             <select
@@ -81,13 +81,19 @@ export function Register() {
               <option value="recruiter">Recruiter</option>
             </select>
           </div>
-
           <button
             onClick={handleRegister}
-            disabled={loading}
-            className="w-full bg-gradient-to-r from-orange-600 to-red-600 text-white py-3 rounded-lg font-semibold hover:shadow-lg transition-all disabled:opacity-50"
+            disabled={loading || !name || !email || !password}
+            className="w-full bg-gradient-to-r from-orange-600 to-red-600 text-white py-3 rounded-lg font-semibold hover:shadow-lg transition-all disabled:opacity-50 flex items-center justify-center space-x-2"
           >
-            {loading ? "Creating account..." : "Create Account"}
+            {loading ? (
+              <>
+                <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                <span>Creating account...</span>
+              </>
+            ) : (
+              <span>Create Account</span>
+            )}
           </button>
         </div>
 
