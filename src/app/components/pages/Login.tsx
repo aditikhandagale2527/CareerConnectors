@@ -16,6 +16,12 @@ export function Login() {
       const data = await loginUser({ email, password })
       localStorage.setItem("token", data.access_token)
 
+      // Clear previous user's data
+      localStorage.removeItem("appliedJobs")
+      localStorage.removeItem("extractedSkills")
+      localStorage.removeItem("aptitudeScore")
+      localStorage.removeItem("mbtiResult")
+
       // Decode token to get role and redirect correctly
       const payload = JSON.parse(atob(data.access_token.split(".")[1]))
       const role = payload.role
