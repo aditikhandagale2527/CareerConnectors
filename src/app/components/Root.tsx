@@ -21,6 +21,9 @@ export function Root() {
 
   const closeMenu = () => setMenuOpen(false)
 
+  // Hide navbar links on login and register pages
+  const isAuthPage = location.pathname === "/login" || location.pathname === "/register"
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
       <header className="bg-white/80 backdrop-blur-sm border-b border-indigo-100 sticky top-0 z-50">
@@ -40,100 +43,104 @@ export function Root() {
               </div>
             </Link>
 
-            {/* Desktop Nav */}
-            <nav className="hidden md:flex items-center space-x-1">
-              <Link
-                to="/"
-                className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all ${
-                  isActive("/") && location.pathname === "/"
-                    ? "bg-indigo-100 text-indigo-700"
-                    : "text-gray-600 hover:bg-gray-100"
-                }`}
-              >
-                <Home className="w-4 h-4" />
-                <span>Home</span>
-              </Link>
-
-              <Link
-                to="/student"
-                className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all ${
-                  isActive("/student")
-                    ? "bg-indigo-100 text-indigo-700"
-                    : "text-gray-600 hover:bg-gray-100"
-                }`}
-              >
-                <Users className="w-4 h-4" />
-                <span>Student Portal</span>
-              </Link>
-
-              <Link
-                to="/recruiter"
-                className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all ${
-                  isActive("/recruiter")
-                    ? "bg-indigo-100 text-indigo-700"
-                    : "text-gray-600 hover:bg-gray-100"
-                }`}
-              >
-                <Users className="w-4 h-4" />
-                <span>Recruiter Portal</span>
-              </Link>
-
-              <Link
-                to="/jobs"
-                className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all ${
-                  isActive("/jobs")
-                    ? "bg-indigo-100 text-indigo-700"
-                    : "text-gray-600 hover:bg-gray-100"
-                }`}
-              >
-                <Briefcase className="w-4 h-4" />
-                <span>Jobs</span>
-              </Link>
-
-              <Link
-                to="/livejobs"
-                className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all ${
-                  isActive("/livejobs")
-                    ? "bg-indigo-100 text-indigo-700"
-                    : "text-gray-600 hover:bg-gray-100"
-                }`}
-              >
-                <Search className="w-4 h-4" />
-                <span>Live Jobs</span>
-              </Link>
-
-              {token ? (
-                <button
-                  onClick={handleLogout}
-                  className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-all"
-                >
-                  <LogOut className="w-4 h-4" />
-                  <span>Logout</span>
-                </button>
-              ) : (
+            {/* Desktop Nav — hidden on auth pages */}
+            {!isAuthPage && (
+              <nav className="hidden md:flex items-center space-x-1">
                 <Link
-                  to="/login"
-                  className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-orange-600 text-white hover:bg-orange-700 transition-all"
+                  to="/"
+                  className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all ${
+                    isActive("/") && location.pathname === "/"
+                      ? "bg-indigo-100 text-indigo-700"
+                      : "text-gray-600 hover:bg-gray-100"
+                  }`}
                 >
-                  <LogIn className="w-4 h-4" />
-                  <span>Login</span>
+                  <Home className="w-4 h-4" />
+                  <span>Home</span>
                 </Link>
-              )}
-            </nav>
 
-            {/* Mobile Hamburger Button */}
-            <button
-              className="md:hidden p-2 rounded-lg text-gray-600 hover:bg-gray-100 transition-all"
-              onClick={() => setMenuOpen(!menuOpen)}
-            >
-              {menuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-            </button>
+                <Link
+                  to="/student"
+                  className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all ${
+                    isActive("/student")
+                      ? "bg-indigo-100 text-indigo-700"
+                      : "text-gray-600 hover:bg-gray-100"
+                  }`}
+                >
+                  <Users className="w-4 h-4" />
+                  <span>Student Portal</span>
+                </Link>
+
+                <Link
+                  to="/recruiter"
+                  className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all ${
+                    isActive("/recruiter")
+                      ? "bg-indigo-100 text-indigo-700"
+                      : "text-gray-600 hover:bg-gray-100"
+                  }`}
+                >
+                  <Users className="w-4 h-4" />
+                  <span>Recruiter Portal</span>
+                </Link>
+
+                <Link
+                  to="/jobs"
+                  className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all ${
+                    isActive("/jobs")
+                      ? "bg-indigo-100 text-indigo-700"
+                      : "text-gray-600 hover:bg-gray-100"
+                  }`}
+                >
+                  <Briefcase className="w-4 h-4" />
+                  <span>Jobs</span>
+                </Link>
+
+                <Link
+                  to="/livejobs"
+                  className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all ${
+                    isActive("/livejobs")
+                      ? "bg-indigo-100 text-indigo-700"
+                      : "text-gray-600 hover:bg-gray-100"
+                  }`}
+                >
+                  <Search className="w-4 h-4" />
+                  <span>Live Jobs</span>
+                </Link>
+
+                {token ? (
+                  <button
+                    onClick={handleLogout}
+                    className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-all"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    <span>Logout</span>
+                  </button>
+                ) : (
+                  <Link
+                    to="/login"
+                    className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-orange-600 text-white hover:bg-orange-700 transition-all"
+                  >
+                    <LogIn className="w-4 h-4" />
+                    <span>Login</span>
+                  </Link>
+                )}
+              </nav>
+            )}
+
+            {/* Mobile Hamburger — hidden on auth pages */}
+            {!isAuthPage && (
+              <button
+                className="md:hidden p-2 rounded-lg text-gray-600 hover:bg-gray-100 transition-all"
+                onClick={() => setMenuOpen(!menuOpen)}
+              >
+                {menuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              </button>
+            )}
 
           </div>
         </div>
 
-        {/* Mobile Menu Dropdown */}
-        {menuOpen && (
+        {/* Mobile Menu Dropdown — hidden on auth pages */}
+        {!isAuthPage && menuOpen && (
           <div className="md:hidden bg-white border-t border-gray-100 px-4 py-3 space-y-1 shadow-lg">
             <Link
               to="/"
