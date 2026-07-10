@@ -14,8 +14,12 @@ export function Root() {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    navigate("/login");
+    localStorage.removeItem("token")
+    localStorage.removeItem("appliedJobs")
+    localStorage.removeItem("extractedSkills")
+    localStorage.removeItem("aptitudeScore")
+    localStorage.removeItem("mbtiResult")
+    navigate("/login")
     setMenuOpen(false)
   };
 
