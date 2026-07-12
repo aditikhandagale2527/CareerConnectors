@@ -42,21 +42,10 @@ export function JobListings() {
       return
     }
 
-    // Get extracted skills from localStorage
-    const savedSkills = localStorage.getItem("extractedSkills")
-    const skills = savedSkills ? JSON.parse(savedSkills) : []
-
-    if (skills.length === 0) {
-      alert("Please upload your resume first so we can match your skills with the job!")
-      navigate("/student/resume")
-      return
-    }
-
     setApplying(jobId)
     try {
       const res = await API.post("/api/applications/apply", {
-        job_id: jobId,
-        skills: skills
+        job_id: jobId
       })
 
       const updated = [...appliedJobs, jobId]
