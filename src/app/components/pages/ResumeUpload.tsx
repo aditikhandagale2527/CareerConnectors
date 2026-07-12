@@ -32,6 +32,15 @@ export function ResumeUpload() {
 
   const handleUpload = async () => {
     if (!file) return
+
+    // Check if logged in
+    const token = localStorage.getItem("token")
+    if (!token) {
+      setError("Please login first before uploading your resume.")
+      navigate("/login")
+      return
+    }
+
     setLoading(true)
     setError("")
     try {
@@ -43,10 +52,21 @@ export function ResumeUpload() {
       const skillsText = response.data.skills
       const cleaned = skillsText.replace(/```json/g, "").replace(/```/g, "").trim()
       const parsed = JSON.parse(cleaned)
+
+      // Save to localStorage
+      localStorage.setItem("extractedSkills", JSON.stringify(parsed))
+
       setSkills(parsed)
       setDone(true)
-    } catch {
-      setError("Failed to upload resume. Please try again.")
+    } catch (err: any) {
+      if (err?.response?.status === 401) {
+        setError("Please login first before uploading your resume.")
+        navigate("/login")
+      } else if (err?.response?.status === 422) {
+        setError("Invalid file. Please upload a PDF file only.")
+      } else {
+        setError(err?.response?.data?.detail || "Failed to upload resume. Please try again.")
+      }
     } finally {
       setLoading(false)
     }
@@ -67,7 +87,6 @@ export function ResumeUpload() {
 
         {!done ? (
           <div className="bg-white p-8 rounded-xl shadow-sm">
-            {/* Upload Area */}
             <div
               className={`border-2 border-dashed border-orange-300 rounded-xl p-8 text-center mb-6 transition-colors ${
                 loading ? "opacity-50 pointer-events-none" : "hover:border-orange-500 cursor-pointer"
@@ -90,7 +109,9 @@ export function ResumeUpload() {
             </div>
 
             {error && (
-              <p className="text-red-500 text-sm mb-4">{error}</p>
+              <div className="bg-red-50 text-red-600 p-3 rounded-lg mb-4 text-sm">
+                {error}
+              </div>
             )}
 
             <button
