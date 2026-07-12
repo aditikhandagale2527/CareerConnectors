@@ -8,6 +8,21 @@ export function Root() {
   const token = localStorage.getItem("token");
   const [menuOpen, setMenuOpen] = useState(false)
 
+  // Get role from JWT token
+  const getRole = () => {
+    if (!token) return null
+    try {
+      const payload = JSON.parse(atob(token.split(".")[1]))
+      return payload.role
+    } catch {
+      return null
+    }
+  }
+
+  const role = getRole()
+  const isStudent = role === "student"
+  const isRecruiter = role === "recruiter"
+
   const isActive = (path: string) => {
     if (path === "/") return location.pathname === "/";
     return location.pathname.startsWith(path);
@@ -25,7 +40,6 @@ export function Root() {
 
   const closeMenu = () => setMenuOpen(false)
 
-  // Hide navbar links on login and register pages
   const isAuthPage = location.pathname === "/login" || location.pathname === "/register"
 
   return (
@@ -47,9 +61,10 @@ export function Root() {
               </div>
             </Link>
 
-            {/* Desktop Nav — hidden on auth pages */}
+            {/* Desktop Nav */}
             {!isAuthPage && (
               <nav className="hidden md:flex items-center space-x-1">
+
                 <Link
                   to="/"
                   className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all ${
@@ -62,53 +77,93 @@ export function Root() {
                   <span>Home</span>
                 </Link>
 
-                <Link
-                  to="/student"
-                  className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all ${
-                    isActive("/student")
-                      ? "bg-indigo-100 text-indigo-700"
-                      : "text-gray-600 hover:bg-gray-100"
-                  }`}
-                >
-                  <Users className="w-4 h-4" />
-                  <span>Student Portal</span>
-                </Link>
+                {/* Show Student Portal only for students */}
+                {isStudent && (
+                  <Link
+                    to="/student"
+                    className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all ${
+                      isActive("/student")
+                        ? "bg-indigo-100 text-indigo-700"
+                        : "text-gray-600 hover:bg-gray-100"
+                    }`}
+                  >
+                    <Users className="w-4 h-4" />
+                    <span>Student Portal</span>
+                  </Link>
+                )}
 
-                <Link
-                  to="/recruiter"
-                  className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all ${
-                    isActive("/recruiter")
-                      ? "bg-indigo-100 text-indigo-700"
-                      : "text-gray-600 hover:bg-gray-100"
-                  }`}
-                >
-                  <Users className="w-4 h-4" />
-                  <span>Recruiter Portal</span>
-                </Link>
+                {/* Show Recruiter Portal only for recruiters */}
+                {isRecruiter && (
+                  <Link
+                    to="/recruiter"
+                    className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all ${
+                      isActive("/recruiter")
+                        ? "bg-indigo-100 text-indigo-700"
+                        : "text-gray-600 hover:bg-gray-100"
+                    }`}
+                  >
+                    <Users className="w-4 h-4" />
+                    <span>Recruiter Portal</span>
+                  </Link>
+                )}
 
-                <Link
-                  to="/jobs"
-                  className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all ${
-                    isActive("/jobs")
-                      ? "bg-indigo-100 text-indigo-700"
-                      : "text-gray-600 hover:bg-gray-100"
-                  }`}
-                >
-                  <Briefcase className="w-4 h-4" />
-                  <span>Jobs</span>
-                </Link>
+                {/* Show Jobs and Live Jobs only for students */}
+                {isStudent && (
+                  <>
+                    <Link
+                      to="/jobs"
+                      className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all ${
+                        isActive("/jobs")
+                          ? "bg-indigo-100 text-indigo-700"
+                          : "text-gray-600 hover:bg-gray-100"
+                      }`}
+                    >
+                      <Briefcase className="w-4 h-4" />
+                      <span>Jobs</span>
+                    </Link>
 
-                <Link
-                  to="/livejobs"
-                  className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all ${
-                    isActive("/livejobs")
-                      ? "bg-indigo-100 text-indigo-700"
-                      : "text-gray-600 hover:bg-gray-100"
-                  }`}
-                >
-                  <Search className="w-4 h-4" />
-                  <span>Live Jobs</span>
-                </Link>
+                    <Link
+                      to="/livejobs"
+                      className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all ${
+                        isActive("/livejobs")
+                          ? "bg-indigo-100 text-indigo-700"
+                          : "text-gray-600 hover:bg-gray-100"
+                      }`}
+                    >
+                      <Search className="w-4 h-4" />
+                      <span>Live Jobs</span>
+                    </Link>
+                  </>
+                )}
+
+                {/* Show Jobs and Live Jobs when not logged in */}
+                {!token && (
+                  <>
+                    <Link
+                      to="/jobs"
+                      className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all ${
+                        isActive("/jobs")
+                          ? "bg-indigo-100 text-indigo-700"
+                          : "text-gray-600 hover:bg-gray-100"
+                      }`}
+                    >
+                      <Briefcase className="w-4 h-4" />
+                      <span>Jobs</span>
+                    </Link>
+
+                    <Link
+                      to="/livejobs"
+                      className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all ${
+                        isActive("/livejobs")
+                          ? "bg-indigo-100 text-indigo-700"
+                          : "text-gray-600 hover:bg-gray-100"
+                      }`}
+                    >
+                      <Search className="w-4 h-4" />
+                      <span>Live Jobs</span>
+                    </Link>
+                  </>
+                )}
 
                 {token ? (
                   <button
@@ -130,7 +185,7 @@ export function Root() {
               </nav>
             )}
 
-            {/* Mobile Hamburger — hidden on auth pages */}
+            {/* Mobile Hamburger */}
             {!isAuthPage && (
               <button
                 className="md:hidden p-2 rounded-lg text-gray-600 hover:bg-gray-100 transition-all"
@@ -139,11 +194,10 @@ export function Root() {
                 {menuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
               </button>
             )}
-
           </div>
         </div>
 
-        {/* Mobile Menu Dropdown — hidden on auth pages */}
+        {/* Mobile Menu */}
         {!isAuthPage && menuOpen && (
           <div className="md:hidden bg-white border-t border-gray-100 px-4 py-3 space-y-1 shadow-lg">
             <Link
@@ -159,57 +213,68 @@ export function Root() {
               <span className="font-medium">Home</span>
             </Link>
 
-            <Link
-              to="/student"
-              onClick={closeMenu}
-              className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-all ${
-                isActive("/student")
-                  ? "bg-indigo-100 text-indigo-700"
-                  : "text-gray-600 hover:bg-gray-100"
-              }`}
-            >
-              <Users className="w-5 h-5" />
-              <span className="font-medium">Student Portal</span>
-            </Link>
+            {/* Student Portal — students only */}
+            {isStudent && (
+              <Link
+                to="/student"
+                onClick={closeMenu}
+                className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-all ${
+                  isActive("/student")
+                    ? "bg-indigo-100 text-indigo-700"
+                    : "text-gray-600 hover:bg-gray-100"
+                }`}
+              >
+                <Users className="w-5 h-5" />
+                <span className="font-medium">Student Portal</span>
+              </Link>
+            )}
 
-            <Link
-              to="/recruiter"
-              onClick={closeMenu}
-              className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-all ${
-                isActive("/recruiter")
-                  ? "bg-indigo-100 text-indigo-700"
-                  : "text-gray-600 hover:bg-gray-100"
-              }`}
-            >
-              <Users className="w-5 h-5" />
-              <span className="font-medium">Recruiter Portal</span>
-            </Link>
+            {/* Recruiter Portal — recruiters only */}
+            {isRecruiter && (
+              <Link
+                to="/recruiter"
+                onClick={closeMenu}
+                className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-all ${
+                  isActive("/recruiter")
+                    ? "bg-indigo-100 text-indigo-700"
+                    : "text-gray-600 hover:bg-gray-100"
+                }`}
+              >
+                <Users className="w-5 h-5" />
+                <span className="font-medium">Recruiter Portal</span>
+              </Link>
+            )}
 
-            <Link
-              to="/jobs"
-              onClick={closeMenu}
-              className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-all ${
-                isActive("/jobs")
-                  ? "bg-indigo-100 text-indigo-700"
-                  : "text-gray-600 hover:bg-gray-100"
-              }`}
-            >
-              <Briefcase className="w-5 h-5" />
-              <span className="font-medium">Jobs</span>
-            </Link>
+            {/* Jobs and Live Jobs — students and non logged in */}
+            {(isStudent || !token) && (
+              <>
+                <Link
+                  to="/jobs"
+                  onClick={closeMenu}
+                  className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-all ${
+                    isActive("/jobs")
+                      ? "bg-indigo-100 text-indigo-700"
+                      : "text-gray-600 hover:bg-gray-100"
+                  }`}
+                >
+                  <Briefcase className="w-5 h-5" />
+                  <span className="font-medium">Jobs</span>
+                </Link>
 
-            <Link
-              to="/livejobs"
-              onClick={closeMenu}
-              className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-all ${
-                isActive("/livejobs")
-                  ? "bg-indigo-100 text-indigo-700"
-                  : "text-gray-600 hover:bg-gray-100"
-              }`}
-            >
-              <Search className="w-5 h-5" />
-              <span className="font-medium">Live Jobs</span>
-            </Link>
+                <Link
+                  to="/livejobs"
+                  onClick={closeMenu}
+                  className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-all ${
+                    isActive("/livejobs")
+                      ? "bg-indigo-100 text-indigo-700"
+                      : "text-gray-600 hover:bg-gray-100"
+                  }`}
+                >
+                  <Search className="w-5 h-5" />
+                  <span className="font-medium">Live Jobs</span>
+                </Link>
+              </>
+            )}
 
             <div className="pt-2 border-t border-gray-100">
               {token ? (
