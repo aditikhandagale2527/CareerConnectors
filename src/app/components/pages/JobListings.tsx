@@ -59,10 +59,16 @@ export function JobListings() {
       })
 
     } catch (err: any) {
-      if (err?.response?.data?.detail === "Already applied") {
+      const detail = err?.response?.data?.detail
+
+      if (detail === "Already applied") {
         alert("You have already applied for this job!")
+      } else if (detail === "Please upload your resume before applying for jobs") {
+        // ✅ Show clear message and redirect to resume upload
+        alert("⚠️ Please upload your resume first before applying!")
+        navigate("/student/resume")
       } else {
-        alert("Failed to apply. Please try again.")
+        alert(detail || "Failed to apply. Please try again.")
       }
     } finally {
       setApplying(null)
@@ -86,19 +92,19 @@ export function JobListings() {
           <div className={`mb-6 p-5 rounded-xl border-2 ${
             applyResult.status === "shortlisted"
               ? "bg-green-50 border-green-400"
-              : "bg-yellow-50 border-yellow-400"
+              : "bg-red-50 border-red-400"
           }`}>
             <div className="flex items-start space-x-3">
-              <div className={`text-3xl`}>
+              <div className="text-3xl">
                 {applyResult.status === "shortlisted" ? "🎉" : "📋"}
               </div>
               <div>
                 <h3 className={`font-bold text-lg ${
-                  applyResult.status === "shortlisted" ? "text-green-700" : "text-yellow-700"
+                  applyResult.status === "shortlisted" ? "text-green-700" : "text-red-700"
                 }`}>
                   {applyResult.status === "shortlisted"
                     ? "Congratulations! You've been shortlisted! 🎉"
-                    : "Application Submitted!"}
+                    : "Not shortlisted this time"}
                 </h3>
                 <p className="text-gray-600 mt-1">
                   Your skill match score: <span className="font-bold text-lg">{applyResult.score}%</span>
@@ -106,7 +112,7 @@ export function JobListings() {
                 <p className="text-gray-500 text-sm mt-1">
                   {applyResult.status === "shortlisted"
                     ? "Your skills match well with this job. The recruiter has been notified!"
-                    : "Your application is under review. Keep improving your skills!"}
+                    : "Your skills don't fully match this job. Keep improving your skills!"}
                 </p>
                 <button
                   onClick={() => setApplyResult(null)}
