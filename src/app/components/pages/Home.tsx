@@ -1,4 +1,5 @@
-import { Link } from "react-router";
+import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router";
 import {
   Brain,
   FileText,
@@ -8,9 +9,45 @@ import {
   Code,
   ArrowRight,
   CheckCircle,
+  Search,
+  MapPin,
 } from "lucide-react";
+import API from "../../src/api/config";
 
 export function Home() {
+  const navigate = useNavigate();
+  const [searchTerm, setSearchTerm] = useState("");
+  const [location, setLocation] = useState("");
+  const [featuredJobs, setFeaturedJobs] = useState<any[]>([]);
+  const [loadingJobs, setLoadingJobs] = useState(true);
+
+  useEffect(() => {
+    fetchFeaturedJobs();
+  }, []);
+
+  const fetchFeaturedJobs = async () => {
+    try {
+      const res = await API.get("/api/jobs/");
+      // Show the 6 most recent jobs
+      setFeaturedJobs(res.data.slice(0, 6));
+    } catch {
+      console.error("Failed to fetch featured jobs");
+    } finally {
+      setLoadingJobs(false);
+    }
+  };
+
+  const handleSearch = () => {
+    const params = new URLSearchParams();
+    if (searchTerm) params.set("q", searchTerm);
+    if (location) params.set("location", location);
+    navigate(`/livejobs?${params.toString()}`);
+  };
+
+  const handleSearchKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") handleSearch();
+  };
+
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
@@ -32,6 +69,43 @@ export function Home() {
             testing, and personality profiling to provide data-backed career paths and identify
             skill gaps.
           </p>
+
+          {/* Search Bar */}
+          <div className="max-w-3xl mx-auto mb-8">
+            <div className="bg-white rounded-xl shadow-lg border border-orange-100 p-2 flex flex-col md:flex-row gap-2">
+              <div className="flex items-center flex-1 px-3">
+                <Search className="w-5 h-5 text-gray-400 flex-shrink-0" />
+                <input
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onKeyDown={handleSearchKeyDown}
+                  placeholder="Job title, skills, or company"
+                  className="w-full px-3 py-3 outline-none text-gray-700"
+                />
+              </div>
+              <div className="hidden md:block w-px bg-gray-200" />
+              <div className="flex items-center flex-1 px-3">
+                <MapPin className="w-5 h-5 text-gray-400 flex-shrink-0" />
+                <input
+                  type="text"
+                  value={location}
+                  onChange={(e) => setLocation(e.target.value)}
+                  onKeyDown={handleSearchKeyDown}
+                  placeholder="Location"
+                  className="w-full px-3 py-3 outline-none text-gray-700"
+                />
+              </div>
+              <button
+                onClick={handleSearch}
+                className="bg-gradient-to-r from-orange-600 to-red-600 text-white px-8 py-3 rounded-lg font-semibold hover:shadow-lg transition-all flex items-center justify-center space-x-2"
+              >
+                <Search className="w-5 h-5" />
+                <span>Search Jobs</span>
+              </button>
+            </div>
+          </div>
+
           <div className="flex flex-wrap gap-4 justify-center">
             <Link
               to="/student"
@@ -51,8 +125,62 @@ export function Home() {
         </div>
       </section>
 
-      {/* Key Features Section */}
+      {/* Featured Jobs Section */}
       <section className="py-16 px-4 bg-white/60">
+        <div className="max-w-6xl mx-auto">
+          <div className="flex items-center justify-between mb-10">
+            <h2 className="text-3xl font-bold text-gray-800">Featured Jobs</h2>
+            <Link
+              to="/livejobs"
+              className="text-orange-600 font-semibold hover:text-orange-700 flex items-center space-x-1"
+            >
+              <span>View All Jobs</span>
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
+
+          {loadingJobs ? (
+            <div className="text-center py-12">
+              <div className="w-10 h-10 border-4 border-orange-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
+            </div>
+          ) : featuredJobs.length === 0 ? (
+            <div className="bg-white rounded-xl p-10 text-center shadow-sm border border-orange-100">
+              <Briefcase className="w-12 h-12 text-orange-300 mx-auto mb-3" />
+              <p className="text-gray-600">No jobs posted yet. Check back soon!</p>
+            </div>
+          ) : (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {featuredJobs.map((job) => (
+                <Link
+                  key={job._id}
+                  to={`/livejobs?highlight=${job._id}`}
+                  className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-all border border-orange-100 block"
+                >
+                  <h3 className="text-lg font-bold text-gray-800 mb-1">{job.title}</h3>
+                  <p className="text-orange-600 font-medium text-sm mb-2">{job.company}</p>
+                  <div className="flex items-center text-gray-500 text-sm mb-3">
+                    <MapPin className="w-4 h-4 mr-1" />
+                    {job.location}
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {job.skills_required?.slice(0, 3).map((skill: string, i: number) => (
+                      <span
+                        key={i}
+                        className="bg-orange-50 text-orange-600 px-2 py-1 rounded-full text-xs font-medium"
+                      >
+                        {skill}
+                      </span>
+                    ))}
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* Key Features Section */}
+      <section className="py-16 px-4">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-3xl font-bold text-center mb-12 text-gray-800">
             Powerful Features for Career Success
@@ -67,7 +195,7 @@ export function Home() {
                 AI Career Recommender
               </h3>
               <p className="text-gray-600">
-                Personalized job role suggestions powered by Gemini 1.5/2.0 Pro/Flash, analyzing
+                Personalized job role suggestions powered by Gemini, analyzing
                 your profile to find perfect career matches.
               </p>
             </div>
