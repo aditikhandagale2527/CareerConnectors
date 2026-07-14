@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react"
 import { Briefcase, MapPin, Search, CheckCircle } from "lucide-react"
-import { useNavigate } from "react-router"
+import { useNavigate, useSearchParams } from "react-router"
 import API from "../../src/api/config"
 
 export function JobListings() {
   const [jobs, setJobs] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
-  const [search, setSearch] = useState("")
+  const [searchParams] = useSearchParams()
+  const [search, setSearch] = useState(searchParams.get("q") || searchParams.get("location") || "")
   const [applying, setApplying] = useState<string | null>(null)
   const [appliedJobs, setAppliedJobs] = useState<string[]>([])
   const [applyResult, setApplyResult] = useState<{jobId: string, score: number, status: string} | null>(null)
@@ -64,7 +65,6 @@ export function JobListings() {
       if (detail === "Already applied") {
         alert("You have already applied for this job!")
       } else if (detail === "Please upload your resume before applying for jobs") {
-        // ✅ Show clear message and redirect to resume upload
         alert("⚠️ Please upload your resume first before applying!")
         navigate("/student/resume")
       } else {
@@ -74,6 +74,8 @@ export function JobListings() {
       setApplying(null)
     }
   }
+
+  const highlightedJobId = searchParams.get("highlight")
 
   const filtered = jobs.filter(job =>
     job.title?.toLowerCase().includes(search.toLowerCase()) ||
@@ -151,7 +153,12 @@ export function JobListings() {
         ) : (
           <div className="space-y-4">
             {filtered.map((job) => (
-              <div key={job._id} className="bg-white p-6 rounded-xl shadow-sm border border-orange-100 hover:shadow-md transition-all">
+              <div
+                key={job._id}
+                className={`bg-white p-6 rounded-xl shadow-sm border hover:shadow-md transition-all ${
+                  highlightedJobId === job._id ? "border-orange-400 ring-2 ring-orange-200" : "border-orange-100"
+                }`}
+              >
                 <div className="flex justify-between items-start mb-3">
                   <div>
                     <h3 className="text-xl font-bold text-gray-800">{job.title}</h3>
