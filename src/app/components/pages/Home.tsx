@@ -18,35 +18,94 @@ export function Home() {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [location, setLocation] = useState("");
-  const [featuredJobs, setFeaturedJobs] = useState<any[]>([]);
+  const [allJobs, setAllJobs] = useState<any[]>([]);
   const [loadingJobs, setLoadingJobs] = useState(true);
+  const [hasSearched, setHasSearched] = useState(false);
+  const [appliedJobs, setAppliedJobs] = useState<string[]>([]);
+  const [applying, setApplying] = useState<string | null>(null);
+  const [applyResult, setApplyResult] = useState<{ jobId: string; score: number; status: string } | null>(null);
 
   useEffect(() => {
-    fetchFeaturedJobs();
+    fetchJobs();
+    const saved = localStorage.getItem("appliedJobs");
+    if (saved) setAppliedJobs(JSON.parse(saved));
   }, []);
 
-  const fetchFeaturedJobs = async () => {
+  const fetchJobs = async () => {
     try {
       const res = await API.get("/api/jobs/");
-      // Show the 6 most recent jobs
-      setFeaturedJobs(res.data.slice(0, 6));
+      setAllJobs(res.data);
     } catch {
-      console.error("Failed to fetch featured jobs");
+      console.error("Failed to fetch jobs");
     } finally {
       setLoadingJobs(false);
     }
   };
 
   const handleSearch = () => {
-    const params = new URLSearchParams();
-    if (searchTerm) params.set("q", searchTerm);
-    if (location) params.set("location", location);
-    navigate(`/livejobs?${params.toString()}`);
+    setHasSearched(true);
   };
 
   const handleSearchKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") handleSearch();
   };
+
+  const handleApply = async (jobId: string) => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("Please login first to apply for jobs!");
+      navigate("/login");
+      return;
+    }
+
+    if (appliedJobs.includes(jobId)) {
+      alert("You have already applied for this job!");
+      return;
+    }
+
+    setApplying(jobId);
+    try {
+      const res = await API.post("/api/applications/apply", { job_id: jobId });
+
+      const updated = [...appliedJobs, jobId];
+      setAppliedJobs(updated);
+      localStorage.setItem("appliedJobs", JSON.stringify(updated));
+
+      setApplyResult({
+        jobId: jobId,
+        score: res.data.match_score,
+        status: res.data.status,
+      });
+    } catch (err: any) {
+      const detail = err?.response?.data?.detail;
+
+      if (detail === "Already applied") {
+        alert("You have already applied for this job!");
+      } else if (detail === "Please upload your resume before applying for jobs") {
+        alert("⚠️ Please upload your resume first before applying!");
+        navigate("/student/resume");
+      } else {
+        alert(detail || "Failed to apply. Please try again.");
+      }
+    } finally {
+      setApplying(null);
+    }
+  };
+
+  const searchLower = searchTerm.toLowerCase();
+  const locationLower = location.toLowerCase();
+
+  const searchResults = allJobs.filter((job) => {
+    const matchesSearch =
+      !searchTerm ||
+      job.title?.toLowerCase().includes(searchLower) ||
+      job.company?.toLowerCase().includes(searchLower) ||
+      job.skills_required?.some((s: string) => s.toLowerCase().includes(searchLower));
+    const matchesLocation = !location || job.location?.toLowerCase().includes(locationLower);
+    return matchesSearch && matchesLocation;
+  });
+
+  const displayedJobs = hasSearched ? searchResults : allJobs.slice(0, 6);
 
   return (
     <div className="min-h-screen">
@@ -78,7 +137,10 @@ export function Home() {
                 <input
                   type="text"
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onChange={(e) => {
+                    setSearchTerm(e.target.value);
+                    setHasSearched(true);
+                  }}
                   onKeyDown={handleSearchKeyDown}
                   placeholder="Job title, skills, or company"
                   className="w-full px-3 py-3 outline-none text-gray-700"
@@ -90,7 +152,10 @@ export function Home() {
                 <input
                   type="text"
                   value={location}
-                  onChange={(e) => setLocation(e.target.value)}
+                  onChange={(e) => {
+                    setLocation(e.target.value);
+                    setHasSearched(true);
+                  }}
                   onKeyDown={handleSearchKeyDown}
                   placeholder="Location"
                   className="w-full px-3 py-3 outline-none text-gray-700"
@@ -125,11 +190,13 @@ export function Home() {
         </div>
       </section>
 
-      {/* Featured Jobs Section */}
+      {/* Jobs Section — shows featured jobs by default, or live search results */}
       <section className="py-16 px-4 bg-white/60">
         <div className="max-w-6xl mx-auto">
           <div className="flex items-center justify-between mb-10">
-            <h2 className="text-3xl font-bold text-gray-800">Featured Jobs</h2>
+            <h2 className="text-3xl font-bold text-gray-800">
+              {hasSearched ? `Search Results (${searchResults.length})` : "Featured Jobs"}
+            </h2>
             <Link
               to="/livejobs"
               className="text-orange-600 font-semibold hover:text-orange-700 flex items-center space-x-1"
@@ -139,22 +206,58 @@ export function Home() {
             </Link>
           </div>
 
+          {/* Match Result Popup */}
+          {applyResult && (
+            <div
+              className={`mb-6 p-5 rounded-xl border-2 ${
+                applyResult.status === "shortlisted"
+                  ? "bg-green-50 border-green-400"
+                  : "bg-red-50 border-red-400"
+              }`}
+            >
+              <div className="flex items-start space-x-3">
+                <div className="text-3xl">{applyResult.status === "shortlisted" ? "🎉" : "📋"}</div>
+                <div>
+                  <h3
+                    className={`font-bold text-lg ${
+                      applyResult.status === "shortlisted" ? "text-green-700" : "text-red-700"
+                    }`}
+                  >
+                    {applyResult.status === "shortlisted"
+                      ? "Congratulations! You've been shortlisted! 🎉"
+                      : "Not shortlisted this time"}
+                  </h3>
+                  <p className="text-gray-600 mt-1">
+                    Your skill match score: <span className="font-bold text-lg">{applyResult.score}%</span>
+                  </p>
+                  <button
+                    onClick={() => setApplyResult(null)}
+                    className="mt-3 text-sm text-gray-400 hover:text-gray-600 underline"
+                  >
+                    Dismiss
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
           {loadingJobs ? (
             <div className="text-center py-12">
               <div className="w-10 h-10 border-4 border-orange-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
             </div>
-          ) : featuredJobs.length === 0 ? (
+          ) : displayedJobs.length === 0 ? (
             <div className="bg-white rounded-xl p-10 text-center shadow-sm border border-orange-100">
               <Briefcase className="w-12 h-12 text-orange-300 mx-auto mb-3" />
-              <p className="text-gray-600">No jobs posted yet. Check back soon!</p>
+              <p className="text-gray-600">
+                {hasSearched ? "No jobs match your search. Try different keywords." : "No jobs posted yet. Check back soon!"}
+              </p>
             </div>
           ) : (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {featuredJobs.map((job) => (
-                <Link
+              {displayedJobs.map((job) => (
+                <div
                   key={job._id}
-                  to={`/livejobs?highlight=${job._id}`}
-                  className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-all border border-orange-100 block"
+                  className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-all border border-orange-100 flex flex-col"
                 >
                   <h3 className="text-lg font-bold text-gray-800 mb-1">{job.title}</h3>
                   <p className="text-orange-600 font-medium text-sm mb-2">{job.company}</p>
@@ -162,8 +265,11 @@ export function Home() {
                     <MapPin className="w-4 h-4 mr-1" />
                     {job.location}
                   </div>
-                  <div className="flex flex-wrap gap-2">
-                    {job.skills_required?.slice(0, 3).map((skill: string, i: number) => (
+                  {job.description && (
+                    <p className="text-gray-600 text-sm mb-3 line-clamp-2">{job.description}</p>
+                  )}
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {job.skills_required?.slice(0, 4).map((skill: string, i: number) => (
                       <span
                         key={i}
                         className="bg-orange-50 text-orange-600 px-2 py-1 rounded-full text-xs font-medium"
@@ -172,7 +278,31 @@ export function Home() {
                       </span>
                     ))}
                   </div>
-                </Link>
+
+                  <div className="mt-auto">
+                    {appliedJobs.includes(job._id) ? (
+                      <div className="flex items-center space-x-2 text-green-600 bg-green-50 px-4 py-2 rounded-lg w-fit">
+                        <CheckCircle className="w-4 h-4" />
+                        <span className="text-sm font-medium">Applied!</span>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => handleApply(job._id)}
+                        disabled={applying === job._id}
+                        className="bg-gradient-to-r from-orange-600 to-red-600 text-white px-5 py-2 rounded-lg text-sm font-semibold hover:shadow-lg transition-all disabled:opacity-50 flex items-center space-x-2 w-full justify-center"
+                      >
+                        {applying === job._id ? (
+                          <>
+                            <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                            <span>Applying...</span>
+                          </>
+                        ) : (
+                          <span>Apply Now</span>
+                        )}
+                      </button>
+                    )}
+                  </div>
+                </div>
               ))}
             </div>
           )}
