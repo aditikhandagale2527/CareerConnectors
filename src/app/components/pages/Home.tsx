@@ -11,6 +11,7 @@ import {
   CheckCircle,
   Search,
   MapPin,
+  ExternalLink,
 } from "lucide-react";
 import API from "../../src/api/config";
 
@@ -18,20 +19,28 @@ export function Home() {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [location, setLocation] = useState("");
+
+  // Internal jobs (your own MongoDB postings)
   const [allJobs, setAllJobs] = useState<any[]>([]);
   const [loadingJobs, setLoadingJobs] = useState(true);
-  const [hasSearched, setHasSearched] = useState(false);
   const [appliedJobs, setAppliedJobs] = useState<string[]>([]);
   const [applying, setApplying] = useState<string | null>(null);
   const [applyResult, setApplyResult] = useState<{ jobId: string; score: number; status: string } | null>(null);
 
+  // External jobs (Adzuna live jobs)
+  const [externalJobs, setExternalJobs] = useState<any[]>([]);
+  const [loadingExternal, setLoadingExternal] = useState(false);
+  const [externalError, setExternalError] = useState("");
+
+  const [hasSearched, setHasSearched] = useState(false);
+
   useEffect(() => {
-    fetchJobs();
+    fetchInternalJobs();
     const saved = localStorage.getItem("appliedJobs");
     if (saved) setAppliedJobs(JSON.parse(saved));
   }, []);
 
-  const fetchJobs = async () => {
+  const fetchInternalJobs = async () => {
     try {
       const res = await API.get("/api/jobs/");
       setAllJobs(res.data);
@@ -42,8 +51,37 @@ export function Home() {
     }
   };
 
+  const fetchExternalJobs = async () => {
+    if (!searchTerm) {
+      setExternalJobs([]);
+      return;
+    }
+    setLoadingExternal(true);
+    setExternalError("");
+    try {
+      const APP_ID = "6ebc4d79";
+      const APP_KEY = "af35a7e9114699045882fad30f1bc05a";
+      const whereParam = location || "India";
+      const response = await fetch(
+        `https://api.adzuna.com/v1/api/jobs/in/search/1?app_id=${APP_ID}&app_key=${APP_KEY}&results_per_page=6&what=${encodeURIComponent(
+          searchTerm
+        )}&where=${encodeURIComponent(whereParam)}&content-type=application/json`
+      );
+      const data = await response.json();
+      setExternalJobs(data.results || []);
+      if (!data.results || data.results.length === 0) {
+        setExternalError("No live jobs found for this search.");
+      }
+    } catch {
+      setExternalError("Failed to fetch live jobs.");
+    } finally {
+      setLoadingExternal(false);
+    }
+  };
+
   const handleSearch = () => {
     setHasSearched(true);
+    fetchExternalJobs();
   };
 
   const handleSearchKeyDown = (e: React.KeyboardEvent) => {
@@ -95,7 +133,7 @@ export function Home() {
   const searchLower = searchTerm.toLowerCase();
   const locationLower = location.toLowerCase();
 
-  const searchResults = allJobs.filter((job) => {
+  const internalResults = allJobs.filter((job) => {
     const matchesSearch =
       !searchTerm ||
       job.title?.toLowerCase().includes(searchLower) ||
@@ -105,7 +143,7 @@ export function Home() {
     return matchesSearch && matchesLocation;
   });
 
-  const displayedJobs = hasSearched ? searchResults : allJobs.slice(0, 6);
+  const displayedInternalJobs = hasSearched ? internalResults : allJobs.slice(0, 6);
 
   return (
     <div className="min-h-screen">
@@ -190,13 +228,53 @@ export function Home() {
         </div>
       </section>
 
-      {/* Jobs Section — shows featured jobs by default, or live search results */}
+      {/* Match Result Popup */}
+      {applyResult && (
+        <div className="max-w-6xl mx-auto px-4">
+          <div
+            className={`mb-6 p-5 rounded-xl border-2 ${
+              applyResult.status === "shortlisted"
+                ? "bg-green-50 border-green-400"
+                : "bg-red-50 border-red-400"
+            }`}
+          >
+            <div className="flex items-start space-x-3">
+              <div className="text-3xl">{applyResult.status === "shortlisted" ? "🎉" : "📋"}</div>
+              <div>
+                <h3
+                  className={`font-bold text-lg ${
+                    applyResult.status === "shortlisted" ? "text-green-700" : "text-red-700"
+                  }`}
+                >
+                  {applyResult.status === "shortlisted"
+                    ? "Congratulations! You've been shortlisted! 🎉"
+                    : "Not shortlisted this time"}
+                </h3>
+                <p className="text-gray-600 mt-1">
+                  Your skill match score: <span className="font-bold text-lg">{applyResult.score}%</span>
+                </p>
+                <button
+                  onClick={() => setApplyResult(null)}
+                  className="mt-3 text-sm text-gray-400 hover:text-gray-600 underline"
+                >
+                  Dismiss
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Jobs Posted on Career Connector */}
       <section className="py-16 px-4 bg-white/60">
         <div className="max-w-6xl mx-auto">
           <div className="flex items-center justify-between mb-10">
-            <h2 className="text-3xl font-bold text-gray-800">
-              {hasSearched ? `Search Results (${searchResults.length})` : "Featured Jobs"}
-            </h2>
+            <div>
+              <h2 className="text-3xl font-bold text-gray-800">
+                {hasSearched ? `On Career Connector (${internalResults.length})` : "Featured Jobs"}
+              </h2>
+              <p className="text-gray-500 text-sm mt-1">Apply directly with AI-powered skill matching</p>
+            </div>
             <Link
               to="/livejobs"
               className="text-orange-600 font-semibold hover:text-orange-700 flex items-center space-x-1"
@@ -206,59 +284,29 @@ export function Home() {
             </Link>
           </div>
 
-          {/* Match Result Popup */}
-          {applyResult && (
-            <div
-              className={`mb-6 p-5 rounded-xl border-2 ${
-                applyResult.status === "shortlisted"
-                  ? "bg-green-50 border-green-400"
-                  : "bg-red-50 border-red-400"
-              }`}
-            >
-              <div className="flex items-start space-x-3">
-                <div className="text-3xl">{applyResult.status === "shortlisted" ? "🎉" : "📋"}</div>
-                <div>
-                  <h3
-                    className={`font-bold text-lg ${
-                      applyResult.status === "shortlisted" ? "text-green-700" : "text-red-700"
-                    }`}
-                  >
-                    {applyResult.status === "shortlisted"
-                      ? "Congratulations! You've been shortlisted! 🎉"
-                      : "Not shortlisted this time"}
-                  </h3>
-                  <p className="text-gray-600 mt-1">
-                    Your skill match score: <span className="font-bold text-lg">{applyResult.score}%</span>
-                  </p>
-                  <button
-                    onClick={() => setApplyResult(null)}
-                    className="mt-3 text-sm text-gray-400 hover:text-gray-600 underline"
-                  >
-                    Dismiss
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-
           {loadingJobs ? (
             <div className="text-center py-12">
               <div className="w-10 h-10 border-4 border-orange-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
             </div>
-          ) : displayedJobs.length === 0 ? (
+          ) : displayedInternalJobs.length === 0 ? (
             <div className="bg-white rounded-xl p-10 text-center shadow-sm border border-orange-100">
               <Briefcase className="w-12 h-12 text-orange-300 mx-auto mb-3" />
               <p className="text-gray-600">
-                {hasSearched ? "No jobs match your search. Try different keywords." : "No jobs posted yet. Check back soon!"}
+                {hasSearched
+                  ? "No jobs posted on Career Connector match your search."
+                  : "No jobs posted yet. Check back soon!"}
               </p>
             </div>
           ) : (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {displayedJobs.map((job) => (
+              {displayedInternalJobs.map((job) => (
                 <div
                   key={job._id}
                   className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-all border border-orange-100 flex flex-col"
                 >
+                  <span className="inline-block bg-orange-100 text-orange-700 text-xs font-semibold px-2 py-0.5 rounded-full mb-2 w-fit">
+                    Career Connector
+                  </span>
                   <h3 className="text-lg font-bold text-gray-800 mb-1">{job.title}</h3>
                   <p className="text-orange-600 font-medium text-sm mb-2">{job.company}</p>
                   <div className="flex items-center text-gray-500 text-sm mb-3">
@@ -308,6 +356,63 @@ export function Home() {
           )}
         </div>
       </section>
+
+      {/* Live Jobs from Adzuna (only shown once a search has been made) */}
+      {hasSearched && searchTerm && (
+        <section className="py-16 px-4">
+          <div className="max-w-6xl mx-auto">
+            <div className="mb-10">
+              <h2 className="text-3xl font-bold text-gray-800">Live Jobs from Across India</h2>
+              <p className="text-gray-500 text-sm mt-1">Real jobs from other companies — apply on their site</p>
+            </div>
+
+            {loadingExternal ? (
+              <div className="text-center py-12">
+                <div className="w-10 h-10 border-4 border-orange-600 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
+                <p className="text-gray-600 text-sm">Searching live jobs...</p>
+              </div>
+            ) : externalError ? (
+              <div className="bg-white rounded-xl p-10 text-center shadow-sm border border-orange-100">
+                <Briefcase className="w-12 h-12 text-orange-300 mx-auto mb-3" />
+                <p className="text-gray-600">{externalError}</p>
+              </div>
+            ) : (
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {externalJobs.map((job: any, index: number) => (
+                  <div
+                    key={index}
+                    className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-all border border-gray-200 flex flex-col"
+                  >
+                    <span className="inline-block bg-gray-100 text-gray-600 text-xs font-semibold px-2 py-0.5 rounded-full mb-2 w-fit">
+                      Live Job
+                    </span>
+                    <h3 className="text-lg font-bold text-gray-800 mb-1">{job.title}</h3>
+                    <p className="text-orange-600 font-medium text-sm mb-2">{job.company?.display_name}</p>
+                    <div className="flex items-center text-gray-500 text-sm mb-3">
+                      <MapPin className="w-4 h-4 mr-1" />
+                      {job.location?.display_name || "India"}
+                    </div>
+                    {job.description && (
+                      <p className="text-gray-600 text-sm mb-4 line-clamp-2">
+                        {job.description.slice(0, 150)}...
+                      </p>
+                    )}
+                    <div className="mt-auto">
+                      <button
+                        onClick={() => window.open(job.redirect_url, "_blank")}
+                        className="bg-gray-800 text-white px-5 py-2 rounded-lg text-sm font-semibold hover:bg-gray-900 transition-all flex items-center justify-center space-x-2 w-full"
+                      >
+                        <span>Apply on Company Site</span>
+                        <ExternalLink className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </section>
+      )}
 
       {/* Key Features Section */}
       <section className="py-16 px-4">
