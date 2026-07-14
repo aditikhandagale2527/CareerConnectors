@@ -130,6 +130,16 @@ export function Home() {
     }
   };
 
+  const handleExternalApply = (redirectUrl: string) => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("Please login first to apply for jobs!");
+      navigate("/login");
+      return;
+    }
+    window.open(redirectUrl, "_blank");
+  };
+
   const searchLower = searchTerm.toLowerCase();
   const locationLower = location.toLowerCase();
 
@@ -399,7 +409,7 @@ export function Home() {
                     )}
                     <div className="mt-auto">
                       <button
-                        onClick={() => window.open(job.redirect_url, "_blank")}
+                        onClick={() => handleExternalApply(job.redirect_url)}
                         className="bg-gray-800 text-white px-5 py-2 rounded-lg text-sm font-semibold hover:bg-gray-900 transition-all flex items-center justify-center space-x-2 w-full"
                       >
                         <span>Apply on Company Site</span>
