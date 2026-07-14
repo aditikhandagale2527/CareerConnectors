@@ -1,12 +1,11 @@
 import { useState } from "react"
 import { useNavigate } from "react-router"
-import { ArrowLeft, FileUp, X } from "lucide-react"
+import { ArrowLeft, Paperclip, X } from "lucide-react"
 import API from "../../src/api/config"
 
 export function PostJob() {
   const navigate = useNavigate()
   const [submitting, setSubmitting] = useState(false)
-  const [jdMode, setJdMode] = useState<"type" | "upload">("type")
   const [jdFile, setJdFile] = useState<File | null>(null)
   const [extracting, setExtracting] = useState(false)
   const [form, setForm] = useState({
@@ -40,7 +39,7 @@ export function PostJob() {
       }))
     } catch {
       alert("Failed to extract from file. Please type the description manually.")
-      setJdMode("type")
+      setJdFile(null)
     } finally {
       setExtracting(false)
     }
@@ -162,117 +161,63 @@ export function PostJob() {
               </div>
             </div>
 
-            {/* Job Description — Type or Upload */}
+            {/* Job Description with attachment icon */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
                 Job Description <span className="text-red-500">*</span>
               </label>
 
-              {/* Toggle buttons */}
-              <div className="flex space-x-2 mb-3">
-                <button
-                  type="button"
-                  onClick={() => setJdMode("type")}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                    jdMode === "type"
-                      ? "bg-orange-600 text-white"
-                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                  }`}
-                >
-                  ✏️ Type Manually
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setJdMode("upload")}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                    jdMode === "upload"
-                      ? "bg-orange-600 text-white"
-                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                  }`}
-                >
-                  📎 Upload JD File
-                </button>
-              </div>
-
-              {/* Type mode */}
-              {jdMode === "type" && (
+              {/* Textarea with paperclip icon inside */}
+              <div className="relative">
                 <textarea
                   value={form.description}
                   onChange={e => setForm({ ...form, description: e.target.value })}
                   placeholder="Describe the role, responsibilities, and requirements..."
                   rows={5}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  className="w-full px-4 py-2 pb-8 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 resize-none"
                 />
-              )}
 
-              {/* Upload mode */}
-              {jdMode === "upload" && (
-                <div>
-                  {!jdFile ? (
-                    <div
-                      className="border-2 border-dashed border-orange-300 rounded-xl p-8 text-center cursor-pointer hover:border-orange-500 transition-colors"
-                      onClick={() => document.getElementById("jdFileInput")?.click()}
-                    >
-                      <FileUp className="w-10 h-10 text-orange-400 mx-auto mb-3" />
-                      <p className="text-gray-600 font-medium mb-1">Click to upload JD file</p>
-                      <p className="text-sm text-gray-400">Supports PDF, Word (.docx), or Text (.txt) files</p>
-                      <input
-                        id="jdFileInput"
-                        type="file"
-                        accept=".pdf,.doc,.docx,.txt"
-                        className="hidden"
-                        onChange={e => {
-                          const file = e.target.files?.[0]
-                          if (file) handleFileUpload(file)
-                        }}
-                      />
-                    </div>
-                  ) : (
-                    <div className="border border-orange-200 rounded-xl p-4 bg-orange-50">
-                      {extracting ? (
-                        <div className="text-center py-4">
-                          <div className="w-8 h-8 border-4 border-orange-600 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
-                          <p className="text-gray-600 text-sm">Extracting job details from file...</p>
-                        </div>
-                      ) : (
-                        <div>
-                          <div className="flex items-center justify-between mb-3">
-                            <div className="flex items-center space-x-2">
-                              <FileUp className="w-5 h-5 text-orange-600" />
-                              <span className="text-sm font-medium text-gray-700">{jdFile.name}</span>
-                            </div>
-                            <button
-                              onClick={() => {
-                                setJdFile(null)
-                                setForm(prev => ({ ...prev, description: "", skills_required: "" }))
-                              }}
-                              className="text-red-400 hover:text-red-600"
-                            >
-                              <X className="w-5 h-5" />
-                            </button>
-                          </div>
-                          <p className="text-green-600 text-sm font-medium">
-                            ✅ Details extracted! Review and edit below if needed.
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  {/* Show extracted description for editing */}
+                {/* Paperclip icon at bottom right of textarea */}
+                <div className="absolute bottom-2 right-3 flex items-center space-x-2">
                   {jdFile && !extracting && (
-                    <div className="mt-3">
-                      <label className="block text-sm text-gray-500 mb-1">Extracted Description (you can edit):</label>
-                      <textarea
-                        value={form.description}
-                        onChange={e => setForm({ ...form, description: e.target.value })}
-                        rows={5}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-                      />
+                    <div className="flex items-center space-x-1 bg-orange-100 text-orange-600 px-2 py-1 rounded-full text-xs">
+                      <span>{jdFile.name.length > 15 ? jdFile.name.substring(0, 15) + "..." : jdFile.name}</span>
+                      <button
+                        onClick={() => {
+                          setJdFile(null)
+                          setForm(prev => ({ ...prev, description: "", skills_required: "" }))
+                        }}
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
                     </div>
                   )}
+                  {extracting && (
+                    <span className="text-xs text-orange-500">Extracting...</span>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => document.getElementById("jdFileInput")?.click()}
+                    className="text-gray-400 hover:text-orange-600 transition-colors"
+                    title="Attach JD file (PDF, Word, TXT)"
+                  >
+                    <Paperclip className="w-5 h-5" />
+                  </button>
+                  <input
+                    id="jdFileInput"
+                    type="file"
+                    accept=".pdf,.doc,.docx,.txt"
+                    className="hidden"
+                    onChange={e => {
+                      const file = e.target.files?.[0]
+                      if (file) handleFileUpload(file)
+                    }}
+                  />
                 </div>
-              )}
+              </div>
+              <p className="text-xs text-gray-400 mt-1">
+                📎 Click the paperclip icon to attach a JD file (PDF, Word, TXT) — details will be auto-filled
+              </p>
             </div>
 
             {/* Skills */}
