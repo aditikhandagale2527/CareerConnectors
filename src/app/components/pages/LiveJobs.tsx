@@ -1,5 +1,6 @@
 import { useState } from "react"
 import { Search, MapPin, Briefcase } from "lucide-react"
+import API from "../../src/api/config"
 
 export function LiveJobs() {
   const [query, setQuery] = useState("")
@@ -15,15 +16,11 @@ export function LiveJobs() {
     setError("")
     setSearched(true)
     try {
-      const APP_ID = "6ebc4d79"
-      const APP_KEY = "af35a7e9114699045882fad30f1bc05a"
-      const response = await fetch(
-        `https://api.adzuna.com/v1/api/jobs/in/search/1?app_id=${APP_ID}&app_key=${APP_KEY}&results_per_page=10&what=${encodeURIComponent(query)}&where=${encodeURIComponent(location)}&content-type=application/json`
-      )
-      const data = await response.json()
-      console.log("API Response:", data)
-      setJobs(data.results || [])
-      if (!data.results || data.results.length === 0) {
+      const res = await API.get("/api/livejobs/search", {
+        params: { query, location }
+      })
+      setJobs(res.data.results || [])
+      if (!res.data.results || res.data.results.length === 0) {
         setError("No jobs found. Try different keywords.")
       }
     } catch (err) {
