@@ -59,17 +59,11 @@ export function Home() {
     setLoadingExternal(true);
     setExternalError("");
     try {
-      const APP_ID = "6ebc4d79";
-      const APP_KEY = "af35a7e9114699045882fad30f1bc05a";
-      const whereParam = location || "India";
-      const response = await fetch(
-        `https://api.adzuna.com/v1/api/jobs/in/search/1?app_id=${APP_ID}&app_key=${APP_KEY}&results_per_page=6&what=${encodeURIComponent(
-          searchTerm
-        )}&where=${encodeURIComponent(whereParam)}&content-type=application/json`
-      );
-      const data = await response.json();
-      setExternalJobs(data.results || []);
-      if (!data.results || data.results.length === 0) {
+      const res = await API.get("/api/livejobs/search", {
+        params: { query: searchTerm, location: location || "India" }
+      });
+      setExternalJobs(res.data.results || []);
+      if (!res.data.results || res.data.results.length === 0) {
         setExternalError("No live jobs found for this search.");
       }
     } catch {
@@ -78,6 +72,7 @@ export function Home() {
       setLoadingExternal(false);
     }
   };
+  
 
   const handleSearch = () => {
     setHasSearched(true);
