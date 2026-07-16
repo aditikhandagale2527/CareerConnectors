@@ -72,7 +72,6 @@ export function Home() {
       setLoadingExternal(false);
     }
   };
-  
 
   const handleSearch = () => {
     setHasSearched(true);
@@ -152,21 +151,21 @@ export function Home() {
 
   return (
     <div className="min-h-screen">
-      {/* Hero Section */}
-      <section className="py-20 px-4">
-        <div className="max-w-6xl mx-auto text-center">
+      {/* Merged Hero + Recruiter Section */}
+      <section className="relative overflow-hidden bg-gradient-to-br from-orange-600 via-red-600 to-red-800">
+        <div className="max-w-6xl mx-auto px-4 pt-16 pb-10 text-center relative z-10">
           <div className="inline-block mb-6">
-            <div className="bg-gradient-to-r from-orange-600 to-red-600 p-4 rounded-2xl">
+            <div className="bg-white/15 backdrop-blur-sm p-4 rounded-2xl border border-white/20">
               <Brain className="w-16 h-16 text-white" />
             </div>
           </div>
-          <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-orange-600 via-red-600 to-orange-600 bg-clip-text text-transparent">
+          <h1 className="text-5xl md:text-6xl font-bold mb-6 text-white">
             Career Connector
           </h1>
-          <p className="text-xl md:text-2xl text-gray-700 mb-4">
+          <p className="text-xl md:text-2xl text-orange-50 mb-4">
             AI-Powered Ecosystem Bridging Job Seekers & Employers
           </p>
-          <p className="text-lg text-gray-600 mb-10 max-w-3xl mx-auto">
+          <p className="text-lg text-orange-100 mb-10 max-w-3xl mx-auto">
             Democratizing career guidance through AI-driven resume analysis, cognitive aptitude
             testing, and personality profiling to provide data-backed career paths and identify
             skill gaps.
@@ -174,7 +173,7 @@ export function Home() {
 
           {/* Search Bar */}
           <div className="max-w-3xl mx-auto mb-8">
-            <div className="bg-white rounded-xl shadow-lg border border-orange-100 p-2 flex flex-col md:flex-row gap-2">
+            <div className="bg-white rounded-xl shadow-2xl p-2 flex flex-col md:flex-row gap-2">
               <div className="flex items-center flex-1 px-3">
                 <Search className="w-5 h-5 text-gray-400 flex-shrink-0" />
                 <input
@@ -217,27 +216,29 @@ export function Home() {
           <div className="flex flex-wrap gap-4 justify-center">
             <Link
               to="/student"
-              className="flex items-center space-x-2 bg-gradient-to-r from-orange-600 to-red-600 text-white px-8 py-4 rounded-lg hover:shadow-lg transition-all"
+              className="flex items-center space-x-2 bg-white text-orange-700 px-8 py-4 rounded-lg font-semibold hover:shadow-lg transition-all"
             >
               <span>Get Started as Student</span>
               <ArrowRight className="w-5 h-5" />
             </Link>
             <Link
               to="/recruiter"
-              className="flex items-center space-x-2 bg-white text-orange-600 px-8 py-4 rounded-lg border-2 border-orange-600 hover:bg-orange-50 transition-all"
+              className="flex items-center space-x-2 bg-transparent text-white px-8 py-4 rounded-lg border-2 border-white hover:bg-white/10 transition-all font-semibold"
             >
               <span>I'm a Recruiter</span>
               <ArrowRight className="w-5 h-5" />
             </Link>
           </div>
         </div>
-      </section>
 
-      {/* Recruiter CTA — Indeed-style hero block */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-orange-700 via-red-700 to-red-800">
-        <div className="max-w-6xl mx-auto px-4 py-20 relative z-10">
+        {/* Divider */}
+        <div className="max-w-4xl mx-auto px-4">
+          <div className="border-t border-white/20"></div>
+        </div>
+
+        {/* Recruiter CTA content */}
+        <div className="max-w-6xl mx-auto px-4 pt-16 pb-20 relative z-10">
           <div className="grid md:grid-cols-2 gap-10 items-center">
-            {/* Left: Text content */}
             <div>
               <p className="text-orange-200 font-semibold tracking-wide text-sm mb-4 uppercase">
                 Career Connector for Recruiters
@@ -260,7 +261,6 @@ export function Home() {
               </Link>
             </div>
 
-            {/* Right: Illustration panel */}
             <div className="relative hidden md:flex items-center justify-center">
               <div className="bg-white/10 backdrop-blur-sm rounded-3xl p-10 border border-white/20 w-full max-w-sm">
                 <div className="space-y-4">
