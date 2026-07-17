@@ -1,46 +1,109 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Link, useNavigate } from "react-router";
+import { motion, useScroll, useTransform } from "framer-motion";
+import Marquee from "react-fast-marquee";
+import Lenis from "lenis";
 import {
-  Brain,
-  FileText,
-  Target,
-  TrendingUp,
-  Briefcase,
-  Code,
-  ArrowRight,
-  CheckCircle,
-  Search,
-  MapPin,
-  ExternalLink,
+  BrainCircuit, Menu, X, ArrowUpRight, Search, MapPin, ArrowRight, Sparkles,
+  FileScan, Target, TrendingUp, Building2, Braces, Briefcase, CheckCircle2,
 } from "lucide-react";
 import API from "../../src/api/config";
 
+const HERO_IMG = "https://images.unsplash.com/photo-1758773263238-1989d0cc788c";
+const RECRUITER_IMG = "https://images.unsplash.com/photo-1740933084056-078fac872bff";
+
+const NAV_LINKS = [
+  { label: "Home", href: "#home" },
+  { label: "Features", href: "#features" },
+  { label: "Jobs", href: "#jobs" },
+  { label: "Recruiters", href: "#recruiters" },
+];
+
+const FEATURES = [
+  { n: "01", icon: BrainCircuit, title: "AI Career Recommender", desc: "Personalized job-role suggestions powered by Gemini, analyzing your full profile to surface the roles you'll actually thrive in." },
+  { n: "02", icon: FileScan, title: "Resume Insight Engine", desc: "Automated extraction of technical and soft skills from PDF resumes using advanced multimodal AI analysis." },
+  { n: "03", icon: Target, title: "Aptitude & Personality Mapping", desc: "LRDI, QA and VARC scores fused with MBTI types feed an intelligent recommendation engine built for fit." },
+  { n: "04", icon: TrendingUp, title: "Skill Gap Analysis", desc: "Actionable, market-aware guidance on exactly what to learn next based on real-time demand and your goals." },
+  { n: "05", icon: Building2, title: "Recruiter Portal", desc: "A secure command center for employers to post roles, manage requirements and review AI-ranked candidates." },
+  { n: "06", icon: Braces, title: "Agentic API", desc: "A standalone FastAPI service for programmatic job recommendations and seamless third-party integration." },
+];
+
+const MANIFESTO = [
+  { n: "01", title: "Guidance, democratized.", body: "Great career advice shouldn't be a privilege. We put an AI mentor in every pocket — analyzing, mapping and recommending with zero bias and total transparency." },
+  { n: "02", title: "Signal over noise.", body: "Job boards flood you with listings. We compute genuine fit — matching cognition, personality and skill against the role, not just keywords." },
+  { n: "03", title: "The gap, made visible.", body: "You can't close what you can't see. We turn ambition into a concrete learning path, benchmarked against live market demand." },
+];
+
+const RIBBON_ITEMS = [
+  "AI CAREER RECOMMENDER", "RESUME INSIGHT ENGINE", "APTITUDE MAPPING",
+  "SKILL GAP ANALYSIS", "PERSONALITY PROFILING", "POWERED BY GEMINI",
+];
+
+const RECRUITER_CARDS = [
+  { icon: Briefcase, title: "Post a Job", sub: "Takes less than 2 minutes" },
+  { icon: BrainCircuit, title: "AI Matches Candidates", sub: "Powered by Gemini" },
+  { icon: CheckCircle2, title: "Auto-Shortlisted", sub: "Top matches, ranked instantly" },
+];
+
+const lineVariants = {
+  hidden: { y: "110%" },
+  show: (i: number) => ({
+    y: "0%",
+    transition: { duration: 0.9, ease: [0.16, 1, 0.3, 1], delay: 0.35 + i * 0.12 },
+  }),
+};
+
 export function Home() {
   const navigate = useNavigate();
-  const [searchTerm, setSearchTerm] = useState("");
-  const [location, setLocation] = useState("");
+  const [scrolled, setScrolled] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
 
-  // Internal jobs (your own MongoDB postings)
+  const [searchTerm, setSearchTerm] = useState("");
+  const [searchLocation, setSearchLocation] = useState("");
+
   const [allJobs, setAllJobs] = useState<any[]>([]);
   const [loadingJobs, setLoadingJobs] = useState(true);
   const [appliedJobs, setAppliedJobs] = useState<string[]>([]);
   const [applying, setApplying] = useState<string | null>(null);
-  const [applyResult, setApplyResult] = useState<{ jobId: string; score: number; status: string } | null>(null);
+  const [applyResult, setApplyResult] = useState<{ score: number; status: string } | null>(null);
 
-  // External jobs (Adzuna live jobs)
-  const [externalJobs, setExternalJobs] = useState<any[]>([]);
-  const [loadingExternal, setLoadingExternal] = useState(false);
-  const [externalError, setExternalError] = useState("");
+  const heroRef = useRef(null);
+  const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
+  const imgY = useTransform(scrollYProgress, [0, 1], ["0%", "24%"]);
+  const imgScale = useTransform(scrollYProgress, [0, 1], [1, 1.12]);
 
-  const [hasSearched, setHasSearched] = useState(false);
+  const recruiterRef = useRef(null);
+  const { scrollYProgress: recruiterScroll } = useScroll({ target: recruiterRef, offset: ["start end", "end start"] });
+  const recruiterImgY = useTransform(recruiterScroll, [0, 1], ["-8%", "12%"]);
 
   useEffect(() => {
-    fetchInternalJobs();
+    fetchJobs();
     const saved = localStorage.getItem("appliedJobs");
     if (saved) setAppliedJobs(JSON.parse(saved));
+
+    const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let lenis: any;
+    let raf: number;
+    if (!prefersReduced) {
+      lenis = new Lenis({ duration: 1.15, smoothWheel: true });
+      const loop = (time: number) => {
+        lenis.raf(time);
+        raf = requestAnimationFrame(loop);
+      };
+      raf = requestAnimationFrame(loop);
+    }
+
+    const onScroll = () => setScrolled(window.scrollY > 40);
+    window.addEventListener("scroll", onScroll);
+
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      if (raf) cancelAnimationFrame(raf);
+      if (lenis) lenis.destroy();
+    };
   }, []);
 
-  const fetchInternalJobs = async () => {
+  const fetchJobs = async () => {
     try {
       const res = await API.get("/api/jobs/");
       setAllJobs(res.data);
@@ -51,35 +114,11 @@ export function Home() {
     }
   };
 
-  const fetchExternalJobs = async () => {
-    if (!searchTerm) {
-      setExternalJobs([]);
-      return;
-    }
-    setLoadingExternal(true);
-    setExternalError("");
-    try {
-      const res = await API.get("/api/livejobs/search", {
-        params: { query: searchTerm, location: location || "India" }
-      });
-      setExternalJobs(res.data.results || []);
-      if (!res.data.results || res.data.results.length === 0) {
-        setExternalError("No live jobs found for this search.");
-      }
-    } catch {
-      setExternalError("Failed to fetch live jobs.");
-    } finally {
-      setLoadingExternal(false);
-    }
-  };
-
   const handleSearch = () => {
-    setHasSearched(true);
-    fetchExternalJobs();
-  };
-
-  const handleSearchKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") handleSearch();
+    const params = new URLSearchParams();
+    if (searchTerm) params.set("q", searchTerm);
+    if (searchLocation) params.set("location", searchLocation);
+    navigate(`/livejobs?${params.toString()}`);
   };
 
   const handleApply = async (jobId: string) => {
@@ -89,32 +128,23 @@ export function Home() {
       navigate("/login");
       return;
     }
-
     if (appliedJobs.includes(jobId)) {
       alert("You have already applied for this job!");
       return;
     }
-
     setApplying(jobId);
     try {
       const res = await API.post("/api/applications/apply", { job_id: jobId });
-
       const updated = [...appliedJobs, jobId];
       setAppliedJobs(updated);
       localStorage.setItem("appliedJobs", JSON.stringify(updated));
-
-      setApplyResult({
-        jobId: jobId,
-        score: res.data.match_score,
-        status: res.data.status,
-      });
+      setApplyResult({ score: res.data.match_score, status: res.data.status });
     } catch (err: any) {
       const detail = err?.response?.data?.detail;
-
       if (detail === "Already applied") {
         alert("You have already applied for this job!");
       } else if (detail === "Please upload your resume before applying for jobs") {
-        alert("⚠️ Please upload your resume first before applying!");
+        alert("Please upload your resume first before applying!");
         navigate("/student/resume");
       } else {
         alert(detail || "Failed to apply. Please try again.");
@@ -124,600 +154,445 @@ export function Home() {
     }
   };
 
-  const handleExternalApply = (redirectUrl: string) => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      alert("Please login first to apply for jobs!");
-      navigate("/login");
-      return;
-    }
-    window.open(redirectUrl, "_blank");
-  };
-
-  const searchLower = searchTerm.toLowerCase();
-  const locationLower = location.toLowerCase();
-
-  const internalResults = allJobs.filter((job) => {
-    const matchesSearch =
-      !searchTerm ||
-      job.title?.toLowerCase().includes(searchLower) ||
-      job.company?.toLowerCase().includes(searchLower) ||
-      job.skills_required?.some((s: string) => s.toLowerCase().includes(searchLower));
-    const matchesLocation = !location || job.location?.toLowerCase().includes(locationLower);
-    return matchesSearch && matchesLocation;
-  });
-
-  const displayedInternalJobs = hasSearched ? internalResults : allJobs.slice(0, 6);
+  const featuredJobs = allJobs.slice(0, 6);
+  const topJob = featuredJobs[0];
 
   return (
-    <div className="min-h-screen">
-      {/* Merged Hero + Recruiter Section */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-orange-600 via-red-600 to-red-800">
-        <div className="max-w-6xl mx-auto px-4 pt-16 pb-10 relative z-10">
-          <div className="grid md:grid-cols-2 gap-10 items-center">
-            {/* Left: Text content */}
-            <div className="text-center md:text-left">
-              <div className="inline-block mb-6">
-                <div className="bg-white/15 backdrop-blur-sm p-4 rounded-2xl border border-white/20">
-                  <Brain className="w-16 h-16 text-white" />
-                </div>
-              </div>
-              <h1 className="text-5xl md:text-6xl font-bold mb-6 text-white">
+    <div className="font-body bg-void min-h-screen" style={{ fontFamily: '"IBM Plex Sans", sans-serif' }}>
+      {/* NAVBAR */}
+      <header
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+          scrolled ? "bg-black/70 backdrop-blur-xl border-b border-white/10" : "bg-transparent border-b border-transparent"
+        }`}
+      >
+        <nav className="mx-auto max-w-[1400px] px-5 sm:px-8 h-[72px] flex items-center justify-between">
+          <a href="#home" className="flex items-center gap-3">
+            <span className="grid place-items-center h-9 w-9 bg-[#FF3300] text-white">
+              <BrainCircuit size={20} strokeWidth={2.2} />
+            </span>
+            <span className="leading-none">
+              <span className="block font-semibold text-[17px] tracking-tight text-[#FAFAFA]" style={{ fontFamily: '"Clash Display", sans-serif' }}>
                 Career Connector
+              </span>
+              <span className="block text-[9px] uppercase tracking-[0.25em] text-white/45 mt-1" style={{ fontFamily: '"JetBrains Mono", monospace' }}>
+                AI-Powered Career Guidance
+              </span>
+            </span>
+          </a>
+
+          <div className="hidden md:flex items-center gap-9">
+            {NAV_LINKS.map((l) => (
+              <a key={l.label} href={l.href} className="text-[11px] uppercase tracking-[0.2em] text-white/60 hover:text-white transition-colors duration-200" style={{ fontFamily: '"JetBrains Mono", monospace' }}>
+                {l.label}
+              </a>
+            ))}
+          </div>
+
+          <div className="hidden md:flex items-center gap-3">
+            <Link to="/recruiter" className="text-[11px] uppercase tracking-[0.2em] text-white/70 hover:text-white transition-colors duration-200" style={{ fontFamily: '"JetBrains Mono", monospace' }}>
+              Recruiter Portal
+            </Link>
+            <Link to="/login" className="group inline-flex items-center gap-2 bg-[#FAFAFA] text-[#09090B] px-5 py-2.5 font-medium text-sm hover:bg-[#FF3300] hover:text-white transition-colors duration-200">
+              Get started
+              <ArrowUpRight size={16} className="transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+            </Link>
+          </div>
+
+          <button onClick={() => setMobileOpen((v) => !v)} className="md:hidden text-[#FAFAFA]" aria-label="Toggle menu">
+            {mobileOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
+        </nav>
+
+        {mobileOpen && (
+          <div className="md:hidden bg-black/95 backdrop-blur-xl border-t border-white/10 px-5 py-6 flex flex-col gap-5">
+            {NAV_LINKS.map((l) => (
+              <a key={l.label} href={l.href} onClick={() => setMobileOpen(false)} className="text-xs uppercase tracking-[0.2em] text-white/70" style={{ fontFamily: '"JetBrains Mono", monospace' }}>
+                {l.label}
+              </a>
+            ))}
+            <Link to="/login" onClick={() => setMobileOpen(false)} className="bg-[#FAFAFA] text-[#09090B] px-5 py-3 text-center font-medium text-sm">
+              Get started
+            </Link>
+          </div>
+        )}
+      </header>
+
+      <main>
+        {/* HERO */}
+        <section id="home" ref={heroRef} className="relative bg-[#09090B] min-h-screen overflow-hidden pt-[72px]">
+          <div className="pointer-events-none absolute -top-40 -left-40 h-[520px] w-[520px] rounded-full bg-[#FF3300]/20 blur-[140px]" />
+          <div className="pointer-events-none absolute top-1/3 right-0 h-[360px] w-[360px] rounded-full bg-[#FF3300]/10 blur-[120px]" />
+
+          <div className="relative mx-auto max-w-[1400px] px-5 sm:px-8 grid lg:grid-cols-12 gap-10 lg:gap-6 pt-16 lg:pt-24 pb-10">
+            <div className="lg:col-span-7 flex flex-col justify-center">
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.6 }} className="inline-flex items-center gap-2 w-fit border border-white/15 px-3 py-1.5 mb-8">
+                <Sparkles size={13} className="text-[#FF3300]" />
+                <span className="text-[10px] uppercase tracking-[0.25em] text-white/70" style={{ fontFamily: '"JetBrains Mono", monospace' }}>
+                  AI-Powered Ecosystem
+                </span>
+              </motion.div>
+
+              <h1 className="font-semibold text-[#FAFAFA] tracking-tighter leading-[0.92] text-[13vw] sm:text-[9vw] lg:text-[5.4vw]" style={{ fontFamily: '"Clash Display", sans-serif' }}>
+                <span className="overflow-hidden block">
+                  <motion.span custom={0} variants={lineVariants} initial="hidden" animate="show" className="block">
+                    Bridging talent
+                  </motion.span>
+                </span>
+                <span className="overflow-hidden block">
+                  <motion.span custom={1} variants={lineVariants} initial="hidden" animate="show" className="block">
+                    &amp; opportunity
+                  </motion.span>
+                </span>
+                <span className="overflow-hidden block">
+                  <motion.span custom={2} variants={lineVariants} initial="hidden" animate="show" className="block">
+                    with <span className="text-[#FF3300] italic">intelligence.</span>
+                  </motion.span>
+                </span>
               </h1>
-              <p className="text-xl md:text-2xl text-orange-50 mb-4">
-                AI-Powered Ecosystem Bridging Job Seekers & Employers
-              </p>
-              <p className="text-lg text-orange-100 mb-10 max-w-xl">
-                Democratizing career guidance through AI-driven resume analysis, cognitive aptitude
-                testing, and personality profiling to provide data-backed career paths and identify
-                skill gaps.
-              </p>
+
+              <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.9 }} className="mt-8 max-w-xl text-white/55 text-base sm:text-lg leading-relaxed">
+                Democratizing career guidance through AI-driven resume analysis, cognitive aptitude testing and personality profiling — delivering data-backed career paths and closing skill gaps for job seekers and employers alike.
+              </motion.p>
+
+              <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 1.05 }} className="mt-10 flex flex-col sm:flex-row border border-white/15 bg-white/[0.03] backdrop-blur-sm">
+                <label className="flex items-center gap-3 px-4 py-4 flex-1 border-b sm:border-b-0 sm:border-r border-white/12">
+                  <Search size={18} className="text-white/40 shrink-0" />
+                  <input
+                    type="text"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+                    placeholder="Job title, skills, or company"
+                    className="bg-transparent outline-none w-full text-sm text-[#FAFAFA] placeholder:text-white/35"
+                  />
+                </label>
+                <label className="flex items-center gap-3 px-4 py-4 sm:w-56 border-b sm:border-b-0 sm:border-r border-white/12">
+                  <MapPin size={18} className="text-white/40 shrink-0" />
+                  <input
+                    type="text"
+                    value={searchLocation}
+                    onChange={(e) => setSearchLocation(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+                    placeholder="Location"
+                    className="bg-transparent outline-none w-full text-sm text-[#FAFAFA] placeholder:text-white/35"
+                  />
+                </label>
+                <button onClick={handleSearch} className="group bg-[#FF3300] text-white px-6 py-4 font-medium text-sm inline-flex items-center justify-center gap-2 hover:brightness-110 transition-[filter] duration-200">
+                  Search Jobs
+                  <ArrowRight size={16} className="transition-transform duration-200 group-hover:translate-x-1" />
+                </button>
+              </motion.div>
+
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.6, delay: 1.25 }} className="mt-6 flex flex-wrap gap-3">
+                <Link to="/student" className="group inline-flex items-center gap-2 bg-[#FAFAFA] text-[#09090B] px-6 py-3 font-medium text-sm hover:bg-white transition-colors duration-200">
+                  Get Started as Student
+                  <ArrowRight size={16} className="transition-transform duration-200 group-hover:translate-x-1" />
+                </Link>
+                <Link to="/recruiter" className="group inline-flex items-center gap-2 border border-white/25 text-[#FAFAFA] px-6 py-3 font-medium text-sm hover:border-white/60 transition-colors duration-200">
+                  I'm a Recruiter
+                  <ArrowRight size={16} className="transition-transform duration-200 group-hover:translate-x-1" />
+                </Link>
+              </motion.div>
             </div>
 
-            {/* Right: Photo */}
-            <div className="hidden md:flex items-center justify-center">
-              <img
-                src="/images/hero-job-search.png"
-                alt="Person searching for jobs on laptop"
-                className="rounded-2xl shadow-2xl w-full max-w-md object-cover border-4 border-white/20"
-              />
+            <div className="lg:col-span-5 relative">
+              <motion.div initial={{ opacity: 0, scale: 1.05 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 1, delay: 0.5, ease: [0.16, 1, 0.3, 1] }} className="relative h-[420px] lg:h-full min-h-[420px] overflow-hidden border border-white/12">
+                <motion.img src={HERO_IMG} alt="Professional working on career analytics" style={{ y: imgY, scale: imgScale }} className="absolute inset-0 h-[130%] w-full object-cover" />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#09090B] via-[#09090B]/20 to-transparent" />
+                <div className="absolute bottom-0 left-0 right-0 p-6 flex items-end justify-between">
+                  <div>
+                    <p className="text-[10px] uppercase tracking-[0.25em] text-white/60" style={{ fontFamily: '"JetBrains Mono", monospace' }}>Live match</p>
+                    <p className="text-2xl text-[#FAFAFA] mt-1" style={{ fontFamily: '"Clash Display", sans-serif' }}>
+                      {topJob ? `${topJob.title} · ${topJob.company}` : "Data Analyst · Amazon"}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-3xl text-[#FF3300] leading-none" style={{ fontFamily: '"Clash Display", sans-serif' }}>94%</p>
+                    <p className="text-[9px] uppercase tracking-[0.2em] text-white/50 mt-1" style={{ fontFamily: '"JetBrains Mono", monospace' }}>fit score</p>
+                  </div>
+                </div>
+              </motion.div>
             </div>
           </div>
 
-          {/* Search Bar */}
-          <div className="max-w-3xl mx-auto mt-4 mb-8">
-            <div className="bg-white rounded-xl shadow-2xl p-2 flex flex-col md:flex-row gap-2">
-              <div className="flex items-center flex-1 px-3">
-                <Search className="w-5 h-5 text-gray-400 flex-shrink-0" />
-                <input
-                  type="text"
-                  value={searchTerm}
-                  onChange={(e) => {
-                    setSearchTerm(e.target.value);
-                    setHasSearched(true);
-                  }}
-                  onKeyDown={handleSearchKeyDown}
-                  placeholder="Job title, skills, or company"
-                  className="w-full px-3 py-3 outline-none text-gray-700"
-                />
-              </div>
-              <div className="hidden md:block w-px bg-gray-200" />
-              <div className="flex items-center flex-1 px-3">
-                <MapPin className="w-5 h-5 text-gray-400 flex-shrink-0" />
-                <input
-                  type="text"
-                  value={location}
-                  onChange={(e) => {
-                    setLocation(e.target.value);
-                    setHasSearched(true);
-                  }}
-                  onKeyDown={handleSearchKeyDown}
-                  placeholder="Location"
-                  className="w-full px-3 py-3 outline-none text-gray-700"
-                />
-              </div>
-              <button
-                onClick={handleSearch}
-                className="bg-gradient-to-r from-orange-600 to-red-600 text-white px-8 py-3 rounded-lg font-semibold hover:shadow-lg transition-all flex items-center justify-center space-x-2"
-              >
-                <Search className="w-5 h-5" />
-                <span>Search Jobs</span>
-              </button>
+          <div className="relative border-t border-white/10 mt-4">
+            <div className="mx-auto max-w-[1400px] px-5 sm:px-8 grid grid-cols-2 md:grid-cols-4 divide-x divide-white/10">
+              {[
+                { value: "12k+", label: "Careers mapped" },
+                { value: "94%", label: "Match precision" },
+                { value: "2 min", label: "To post a job" },
+                { value: "500+", label: "Hiring partners" },
+              ].map((s) => (
+                <div key={s.label} className="py-6 px-2 md:px-6 first:pl-0">
+                  <p className="text-3xl sm:text-4xl text-[#FAFAFA] tracking-tight" style={{ fontFamily: '"Clash Display", sans-serif' }}>{s.value}</p>
+                  <p className="text-[10px] uppercase tracking-[0.2em] text-white/45 mt-1" style={{ fontFamily: '"JetBrains Mono", monospace' }}>{s.label}</p>
+                </div>
+              ))}
             </div>
           </div>
+        </section>
 
-          <div className="flex flex-wrap gap-4 justify-center">
-            <Link
-              to="/student"
-              className="flex items-center space-x-2 bg-white text-orange-700 px-8 py-4 rounded-lg font-semibold hover:shadow-lg transition-all"
-            >
-              <span>Get Started as Student</span>
-              <ArrowRight className="w-5 h-5" />
-            </Link>
-            <Link
-              to="/recruiter"
-              className="flex items-center space-x-2 bg-transparent text-white px-8 py-4 rounded-lg border-2 border-white hover:bg-white/10 transition-all font-semibold"
-            >
-              <span>I'm a Recruiter</span>
-              <ArrowRight className="w-5 h-5" />
-            </Link>
-          </div>
+        {/* RIBBON */}
+        <div className="bg-[#FF3300] text-[#09090B] py-3.5 border-y border-black/10 select-none">
+          <Marquee speed={38} gradient={false} autoFill>
+            {RIBBON_ITEMS.map((t, i) => (
+              <span key={i} className="mx-8 inline-flex items-center gap-8 text-xs uppercase tracking-[0.3em] font-medium" style={{ fontFamily: '"JetBrains Mono", monospace' }}>
+                {t}
+                <span className="opacity-60">◆</span>
+              </span>
+            ))}
+          </Marquee>
         </div>
 
-        {/* Divider */}
-        <div className="max-w-4xl mx-auto px-4">
-          <div className="border-t border-white/20"></div>
-        </div>
+        {/* FEATURES */}
+        <section id="features" className="bg-[#F4F0EA] text-[#121212] py-24 sm:py-32">
+          <div className="mx-auto max-w-[1400px] px-5 sm:px-8">
+            <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-16">
+              <div className="max-w-2xl">
+                <p className="text-[11px] uppercase tracking-[0.3em] text-[#FF3300] mb-5" style={{ fontFamily: '"JetBrains Mono", monospace' }}>/ The System</p>
+                <h2 className="font-semibold text-4xl sm:text-5xl lg:text-6xl tracking-tighter leading-[0.95]" style={{ fontFamily: '"Clash Display", sans-serif' }}>
+                  Powerful tooling for career success.
+                </h2>
+              </div>
+              <p className="text-black/60 max-w-sm text-sm leading-relaxed">
+                Six connected engines that read, reason and recommend — turning scattered signals into one clear direction.
+              </p>
+            </div>
 
-        {/* Recruiter CTA content */}
-        <div className="max-w-6xl mx-auto px-4 pt-16 pb-20 relative z-10">
-          <div className="grid md:grid-cols-2 gap-10 items-center">
-            <div>
-              <p className="text-orange-200 font-semibold tracking-wide text-sm mb-4 uppercase">
-                Career Connector for Recruiters
-              </p>
-              <h2 className="text-4xl md:text-5xl font-bold text-white leading-tight mb-6">
-                Let's hire your <br />
-                next great <br />
-                candidate. <span className="italic font-light">Fast.</span>
-              </h2>
-              <p className="text-orange-100 text-lg mb-8 max-w-md">
-                No matter the skills, experience, or qualifications you're looking for,
-                our AI-powered matching finds the right candidates for you.
-              </p>
-              <Link
-                to="/recruiter"
-                className="inline-flex items-center space-x-2 bg-white text-orange-700 px-8 py-4 rounded-lg font-semibold hover:bg-orange-50 transition-all shadow-lg"
-              >
-                <span>Post a Job</span>
-                <ArrowRight className="w-5 h-5" />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 border-t border-l border-black/10">
+              {FEATURES.map((f, i) => {
+                const Icon = f.icon;
+                return (
+                  <motion.div
+                    key={f.n}
+                    initial={{ opacity: 0, y: 30 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: "-60px" }}
+                    transition={{ duration: 0.55, delay: (i % 3) * 0.08, ease: [0.16, 1, 0.3, 1] }}
+                    className="group relative border-r border-b border-black/10 p-8 lg:p-10 hover:bg-[#09090B] hover:text-[#FAFAFA] transition-colors duration-300"
+                  >
+                    <div className="flex items-start justify-between mb-14">
+                      <span className="grid place-items-center h-12 w-12 border border-black/15 group-hover:border-white/20 text-[#FF3300] transition-colors duration-300">
+                        <Icon size={22} strokeWidth={1.8} />
+                      </span>
+                      <span className="text-xs tracking-[0.2em] text-black/30 group-hover:text-white/30 transition-colors duration-300" style={{ fontFamily: '"JetBrains Mono", monospace' }}>{f.n}</span>
+                    </div>
+                    <h3 className="text-xl font-medium tracking-tight mb-3" style={{ fontFamily: '"Clash Display", sans-serif' }}>{f.title}</h3>
+                    <p className="text-sm leading-relaxed text-black/60 group-hover:text-white/55 transition-colors duration-300">{f.desc}</p>
+                  </motion.div>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+
+        {/* FEATURED JOBS */}
+        <section id="jobs" className="bg-[#F4F0EA] text-[#121212] pb-24 sm:pb-32">
+          <div className="mx-auto max-w-[1400px] px-5 sm:px-8">
+            <div className="flex items-end justify-between gap-6 mb-12 pt-8 border-t border-black/10">
+              <div>
+                <p className="text-[11px] uppercase tracking-[0.3em] text-[#FF3300] mb-5" style={{ fontFamily: '"JetBrains Mono", monospace' }}>/ Featured Roles</p>
+                <h2 className="font-semibold text-4xl sm:text-5xl tracking-tighter leading-[0.95]" style={{ fontFamily: '"Clash Display", sans-serif' }}>
+                  Apply with AI skill matching.
+                </h2>
+              </div>
+              <Link to="/livejobs" className="group hidden sm:inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.2em] text-[#121212] hover:text-[#FF3300] transition-colors duration-200" style={{ fontFamily: '"JetBrains Mono", monospace' }}>
+                View all jobs
+                <ArrowRight size={15} className="transition-transform duration-200 group-hover:translate-x-1" />
               </Link>
             </div>
 
-            <div className="relative hidden md:flex items-center justify-center">
-              <div className="bg-white/10 backdrop-blur-sm rounded-3xl p-10 border border-white/20 w-full max-w-sm">
-                <div className="space-y-4">
-                  <div className="flex items-center space-x-3 bg-white/95 rounded-xl p-4 shadow-lg">
-                    <div className="bg-orange-100 w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0">
-                      <Briefcase className="w-5 h-5 text-orange-600" />
-                    </div>
-                    <div>
-                      <p className="font-semibold text-gray-800 text-sm">Post a Job</p>
-                      <p className="text-gray-500 text-xs">Takes less than 2 minutes</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-3 bg-white/95 rounded-xl p-4 shadow-lg ml-6">
-                    <div className="bg-red-100 w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0">
-                      <Brain className="w-5 h-5 text-red-600" />
-                    </div>
-                    <div>
-                      <p className="font-semibold text-gray-800 text-sm">AI Matches Candidates</p>
-                      <p className="text-gray-500 text-xs">Powered by Gemini</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-3 bg-white/95 rounded-xl p-4 shadow-lg">
-                    <div className="bg-orange-100 w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0">
-                      <CheckCircle className="w-5 h-5 text-orange-600" />
-                    </div>
-                    <div>
-                      <p className="font-semibold text-gray-800 text-sm">Auto-Shortlisted</p>
-                      <p className="text-gray-500 text-xs">Top matches, ranked instantly</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Curved bottom edge */}
-        <svg
-          className="absolute bottom-0 left-0 w-full"
-          viewBox="0 0 1440 120"
-          fill="none"
-          preserveAspectRatio="none"
-          style={{ height: "80px" }}
-        >
-          <path d="M0,120 C480,0 960,0 1440,120 L1440,120 L0,120 Z" fill="white" />
-        </svg>
-      </section>
-
-      {/* Match Result Popup */}
-      {applyResult && (
-        <div className="max-w-6xl mx-auto px-4">
-          <div
-            className={`mb-6 p-5 rounded-xl border-2 ${
-              applyResult.status === "shortlisted"
-                ? "bg-green-50 border-green-400"
-                : "bg-red-50 border-red-400"
-            }`}
-          >
-            <div className="flex items-start space-x-3">
-              <div className="text-3xl">{applyResult.status === "shortlisted" ? "🎉" : "📋"}</div>
-              <div>
-                <h3
-                  className={`font-bold text-lg ${
-                    applyResult.status === "shortlisted" ? "text-green-700" : "text-red-700"
-                  }`}
-                >
-                  {applyResult.status === "shortlisted"
-                    ? "Congratulations! You've been shortlisted! 🎉"
-                    : "Not shortlisted this time"}
-                </h3>
-                <p className="text-gray-600 mt-1">
-                  Your skill match score: <span className="font-bold text-lg">{applyResult.score}%</span>
+            {applyResult && (
+              <div className={`mb-8 p-5 border-2 ${applyResult.status === "shortlisted" ? "bg-green-50 border-green-400" : "bg-red-50 border-red-400"}`}>
+                <p className="font-semibold">
+                  {applyResult.status === "shortlisted" ? "Congratulations! You've been shortlisted!" : "Not shortlisted this time"}
                 </p>
-                <button
-                  onClick={() => setApplyResult(null)}
-                  className="mt-3 text-sm text-gray-400 hover:text-gray-600 underline"
-                >
-                  Dismiss
-                </button>
+                <p className="text-sm text-black/60 mt-1">Your skill match score: {applyResult.score}%</p>
+                <button onClick={() => setApplyResult(null)} className="text-xs underline mt-2 text-black/40">Dismiss</button>
               </div>
-            </div>
-          </div>
-        </div>
-      )}
+            )}
 
-      {/* Jobs Posted on Career Connector */}
-      <section className="py-16 px-4 bg-white/60">
-        <div className="max-w-6xl mx-auto">
-          <div className="flex items-center justify-between mb-10">
-            <div>
-              <h2 className="text-3xl font-bold text-gray-800">
-                {hasSearched ? `On Career Connector (${internalResults.length})` : "Featured Jobs"}
-              </h2>
-              <p className="text-gray-500 text-sm mt-1">Apply directly with AI-powered skill matching</p>
-            </div>
-            <Link
-              to="/livejobs"
-              className="text-orange-600 font-semibold hover:text-orange-700 flex items-center space-x-1"
-            >
-              <span>View All Jobs</span>
-              <ArrowRight className="w-4 h-4" />
-            </Link>
-          </div>
-
-          {loadingJobs ? (
-            <div className="text-center py-12">
-              <div className="w-10 h-10 border-4 border-orange-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
-            </div>
-          ) : displayedInternalJobs.length === 0 ? (
-            <div className="bg-white rounded-xl p-10 text-center shadow-sm border border-orange-100">
-              <Briefcase className="w-12 h-12 text-orange-300 mx-auto mb-3" />
-              <p className="text-gray-600">
-                {hasSearched
-                  ? "No jobs posted on Career Connector match your search."
-                  : "No jobs posted yet. Check back soon!"}
-              </p>
-            </div>
-          ) : (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {displayedInternalJobs.map((job) => (
-                <div
-                  key={job._id}
-                  className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-all border border-orange-100 flex flex-col"
-                >
-                  <span className="inline-block bg-orange-100 text-orange-700 text-xs font-semibold px-2 py-0.5 rounded-full mb-2 w-fit">
-                    Career Connector
-                  </span>
-                  <h3 className="text-lg font-bold text-gray-800 mb-1">{job.title}</h3>
-                  <p className="text-orange-600 font-medium text-sm mb-2">{job.company}</p>
-                  <div className="flex items-center text-gray-500 text-sm mb-3">
-                    <MapPin className="w-4 h-4 mr-1" />
-                    {job.location}
-                  </div>
-                  {job.description && (
-                    <p className="text-gray-600 text-sm mb-3 line-clamp-2">{job.description}</p>
-                  )}
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    {job.skills_required?.slice(0, 4).map((skill: string, i: number) => (
-                      <span
-                        key={i}
-                        className="bg-orange-50 text-orange-600 px-2 py-1 rounded-full text-xs font-medium"
-                      >
-                        {skill}
+            {loadingJobs ? (
+              <p className="text-black/50 text-sm">Loading jobs...</p>
+            ) : featuredJobs.length === 0 ? (
+              <p className="text-black/50 text-sm">No jobs posted yet. Check back soon!</p>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                {featuredJobs.map((job, i) => (
+                  <motion.article
+                    key={job._id}
+                    initial={{ opacity: 0, y: 28 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: "-40px" }}
+                    transition={{ duration: 0.5, delay: (i % 3) * 0.08, ease: [0.16, 1, 0.3, 1] }}
+                    className="group bg-[#FAFAFA] border border-black/10 p-6 flex flex-col hover:-translate-y-1 hover:border-black/40 hover:shadow-[6px_6px_0_0_#FF3300] transition-[transform,border-color,box-shadow] duration-200"
+                  >
+                    <div className="flex items-center justify-between mb-5">
+                      <span className="text-[9px] uppercase tracking-[0.2em] bg-[#FF3300]/10 text-[#FF3300] px-2.5 py-1" style={{ fontFamily: '"JetBrains Mono", monospace' }}>
+                        Career Connector
                       </span>
-                    ))}
-                  </div>
+                    </div>
 
-                  <div className="mt-auto">
+                    <h3 className="text-2xl font-medium tracking-tight leading-tight" style={{ fontFamily: '"Clash Display", sans-serif' }}>{job.title}</h3>
+                    <p className="text-[#FF3300] font-medium text-sm mt-1">{job.company}</p>
+                    <p className="flex items-center gap-1.5 text-black/50 text-xs mt-2">
+                      <MapPin size={13} /> {job.location}
+                    </p>
+
+                    {job.description && <p className="text-sm text-black/60 leading-relaxed mt-4 line-clamp-2">{job.description}</p>}
+
+                    <div className="flex flex-wrap gap-2 mt-5 mb-6">
+                      {job.skills_required?.slice(0, 4).map((s: string) => (
+                        <span key={s} className="text-[10px] uppercase tracking-[0.1em] border border-black/12 px-2.5 py-1 text-black/70" style={{ fontFamily: '"JetBrains Mono", monospace' }}>
+                          {s}
+                        </span>
+                      ))}
+                    </div>
+
                     {appliedJobs.includes(job._id) ? (
-                      <div className="flex items-center space-x-2 text-green-600 bg-green-50 px-4 py-2 rounded-lg w-fit">
-                        <CheckCircle className="w-4 h-4" />
-                        <span className="text-sm font-medium">Applied!</span>
+                      <div className="mt-auto inline-flex items-center justify-center gap-2 bg-green-100 text-green-700 py-3 text-sm font-medium">
+                        Applied!
                       </div>
                     ) : (
                       <button
                         onClick={() => handleApply(job._id)}
                         disabled={applying === job._id}
-                        className="bg-gradient-to-r from-orange-600 to-red-600 text-white px-5 py-2 rounded-lg text-sm font-semibold hover:shadow-lg transition-all disabled:opacity-50 flex items-center space-x-2 w-full justify-center"
+                        className="group/btn mt-auto inline-flex items-center justify-center gap-2 bg-[#09090B] text-[#FAFAFA] py-3 text-sm font-medium hover:bg-[#FF3300] transition-colors duration-200 disabled:opacity-50"
                       >
-                        {applying === job._id ? (
-                          <>
-                            <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-                            <span>Applying...</span>
-                          </>
-                        ) : (
-                          <span>Apply Now</span>
-                        )}
+                        {applying === job._id ? "Applying..." : "Apply Now"}
+                        <ArrowRight size={15} className="transition-transform duration-200 group-hover/btn:translate-x-1" />
                       </button>
                     )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </section>
-
-      {/* Live Jobs from Adzuna (only shown once a search has been made) */}
-      {hasSearched && searchTerm && (
-        <section className="py-16 px-4">
-          <div className="max-w-6xl mx-auto">
-            <div className="mb-10">
-              <h2 className="text-3xl font-bold text-gray-800">Live Jobs from Across India</h2>
-              <p className="text-gray-500 text-sm mt-1">Real jobs from other companies — apply on their site</p>
-            </div>
-
-            {loadingExternal ? (
-              <div className="text-center py-12">
-                <div className="w-10 h-10 border-4 border-orange-600 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
-                <p className="text-gray-600 text-sm">Searching live jobs...</p>
-              </div>
-            ) : externalError ? (
-              <div className="bg-white rounded-xl p-10 text-center shadow-sm border border-orange-100">
-                <Briefcase className="w-12 h-12 text-orange-300 mx-auto mb-3" />
-                <p className="text-gray-600">{externalError}</p>
-              </div>
-            ) : (
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {externalJobs.map((job: any, index: number) => (
-                  <div
-                    key={index}
-                    className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-all border border-gray-200 flex flex-col"
-                  >
-                    <span className="inline-block bg-gray-100 text-gray-600 text-xs font-semibold px-2 py-0.5 rounded-full mb-2 w-fit">
-                      Live Job
-                    </span>
-                    <h3 className="text-lg font-bold text-gray-800 mb-1">{job.title}</h3>
-                    <p className="text-orange-600 font-medium text-sm mb-2">{job.company?.display_name}</p>
-                    <div className="flex items-center text-gray-500 text-sm mb-3">
-                      <MapPin className="w-4 h-4 mr-1" />
-                      {job.location?.display_name || "India"}
-                    </div>
-                    {job.description && (
-                      <p className="text-gray-600 text-sm mb-4 line-clamp-2">
-                        {job.description.slice(0, 150)}...
-                      </p>
-                    )}
-                    <div className="mt-auto">
-                      <button
-                        onClick={() => handleExternalApply(job.redirect_url)}
-                        className="bg-gray-800 text-white px-5 py-2 rounded-lg text-sm font-semibold hover:bg-gray-900 transition-all flex items-center justify-center space-x-2 w-full"
-                      >
-                        <span>Apply on Company Site</span>
-                        <ExternalLink className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </div>
+                  </motion.article>
                 ))}
               </div>
             )}
           </div>
         </section>
-      )}
 
-      {/* Key Features Section */}
-      <section className="py-16 px-4">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl font-bold text-center mb-12 text-gray-800">
-            Powerful Features for Career Success
-          </h2>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {/* Feature 1 */}
-            <div className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow border border-orange-100">
-              <div className="bg-orange-100 w-12 h-12 rounded-lg flex items-center justify-center mb-4">
-                <Brain className="w-6 h-6 text-orange-600" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-800 mb-2">
-                AI Career Recommender
-              </h3>
-              <p className="text-gray-600">
-                Personalized job role suggestions powered by Gemini, analyzing
-                your profile to find perfect career matches.
-              </p>
-            </div>
+        {/* RECRUITER */}
+        <section id="recruiters" ref={recruiterRef} className="bg-[#09090B] text-[#FAFAFA] py-24 sm:py-32 overflow-hidden">
+          <div className="mx-auto max-w-[1400px] px-5 sm:px-8">
+            <p className="text-[11px] uppercase tracking-[0.3em] text-[#FF3300] mb-6" style={{ fontFamily: '"JetBrains Mono", monospace' }}>/ Career Connector for Recruiters</p>
 
-            {/* Feature 2 */}
-            <div className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow border border-red-100">
-              <div className="bg-red-100 w-12 h-12 rounded-lg flex items-center justify-center mb-4">
-                <FileText className="w-6 h-6 text-red-600" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-800 mb-2">
-                Resume Insight Engine
-              </h3>
-              <p className="text-gray-600">
-                Automated extraction of technical and soft skills from PDF resumes using advanced
-                AI analysis.
-              </p>
-            </div>
-
-            {/* Feature 3 */}
-            <div className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow border border-orange-100">
-              <div className="bg-orange-100 w-12 h-12 rounded-lg flex items-center justify-center mb-4">
-                <Target className="w-6 h-6 text-orange-600" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-800 mb-2">
-                Aptitude & Personality Mapping
-              </h3>
-              <p className="text-gray-600">
-                Integration of LRDI, QA, VARC scores and MBTI types into intelligent
-                recommendation logic.
-              </p>
-            </div>
-
-            {/* Feature 4 */}
-            <div className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow border border-red-100">
-              <div className="bg-red-100 w-12 h-12 rounded-lg flex items-center justify-center mb-4">
-                <TrendingUp className="w-6 h-6 text-red-600" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-800 mb-2">Skill Gap Analysis</h3>
-              <p className="text-gray-600">
-                Actionable recommendations on what to learn next based on market demand and your
-                career goals.
-              </p>
-            </div>
-
-            {/* Feature 5 */}
-            <div className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow border border-orange-100">
-              <div className="bg-orange-100 w-12 h-12 rounded-lg flex items-center justify-center mb-4">
-                <Briefcase className="w-6 h-6 text-orange-600" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-800 mb-2">Recruiter Portal</h3>
-              <p className="text-gray-600">
-                Secure platform for employers to post jobs and manage candidate requirements
-                efficiently.
-              </p>
-            </div>
-
-            {/* Feature 6 */}
-            <div className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow border border-red-100">
-              <div className="bg-red-100 w-12 h-12 rounded-lg flex items-center justify-center mb-4">
-                <Code className="w-6 h-6 text-red-600" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-800 mb-2">Agentic API</h3>
-              <p className="text-gray-600">
-                Standalone FastAPI service for programmatic job recommendations and seamless
-                integration.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* How It Works Section */}
-      <section className="py-16 px-4">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl font-bold text-center mb-12 text-gray-800">
-            How Career Connector Works
-          </h2>
-          <div className="grid md:grid-cols-2 gap-12">
-            {/* For Students */}
-            <div className="bg-white p-8 rounded-xl shadow-sm border border-orange-100">
-              <h3 className="text-2xl font-bold text-orange-600 mb-6">For Students</h3>
-              <div className="space-y-4">
-                <div className="flex items-start space-x-3">
-                  <CheckCircle className="w-6 h-6 text-orange-600 flex-shrink-0 mt-1" />
-                  <div>
-                    <h4 className="font-semibold text-gray-800">Upload Your Resume</h4>
-                    <p className="text-gray-600 text-sm">
-                      AI extracts your skills, experience, and qualifications
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-start space-x-3">
-                  <CheckCircle className="w-6 h-6 text-orange-600 flex-shrink-0 mt-1" />
-                  <div>
-                    <h4 className="font-semibold text-gray-800">Take Aptitude Tests</h4>
-                    <p className="text-gray-600 text-sm">
-                      Complete LRDI, QA, and VARC assessments
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-start space-x-3">
-                  <CheckCircle className="w-6 h-6 text-orange-600 flex-shrink-0 mt-1" />
-                  <div>
-                    <h4 className="font-semibold text-gray-800">Personality Assessment</h4>
-                    <p className="text-gray-600 text-sm">
-                      MBTI profiling for career alignment
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-start space-x-3">
-                  <CheckCircle className="w-6 h-6 text-orange-600 flex-shrink-0 mt-1" />
-                  <div>
-                    <h4 className="font-semibold text-gray-800">Get AI Recommendations</h4>
-                    <p className="text-gray-600 text-sm">
-                      Receive personalized career paths and skill gap analysis
-                    </p>
-                  </div>
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+              <div className="lg:col-span-7 flex flex-col justify-between border border-white/12 p-8 lg:p-12">
+                <h2 className="font-semibold text-5xl sm:text-6xl lg:text-7xl tracking-tighter leading-[0.9]" style={{ fontFamily: '"Clash Display", sans-serif' }}>
+                  Hire your next great candidate. <span className="italic text-[#FF3300]">Fast.</span>
+                </h2>
+                <div className="mt-10">
+                  <p className="text-white/55 max-w-md leading-relaxed">
+                    No matter the skills, experience or qualifications you're looking for, our AI-powered matching surfaces the right candidates — ranked, scored and ready.
+                  </p>
+                  <Link to="/recruiter" className="group mt-8 inline-flex items-center gap-2 bg-[#FAFAFA] text-[#09090B] px-7 py-3.5 font-medium text-sm hover:bg-[#FF3300] hover:text-white transition-colors duration-200">
+                    Post a Job
+                    <ArrowRight size={16} className="transition-transform duration-200 group-hover:translate-x-1" />
+                  </Link>
                 </div>
               </div>
-            </div>
 
-            {/* For Recruiters */}
-            <div className="bg-white p-8 rounded-xl shadow-sm border border-red-100">
-              <h3 className="text-2xl font-bold text-red-600 mb-6">For Recruiters</h3>
-              <div className="space-y-4">
-                <div className="flex items-start space-x-3">
-                  <CheckCircle className="w-6 h-6 text-red-600 flex-shrink-0 mt-1" />
-                  <div>
-                    <h4 className="font-semibold text-gray-800">Post Job Openings</h4>
-                    <p className="text-gray-600 text-sm">
-                      Create detailed job listings with requirements
-                    </p>
-                  </div>
+              <div className="lg:col-span-5 flex flex-col gap-6">
+                <div className="relative h-56 overflow-hidden border border-white/12">
+                  <motion.img src={RECRUITER_IMG} alt="Modern corporate hiring meeting room" style={{ y: recruiterImgY }} className="absolute inset-0 h-[125%] w-full object-cover" />
+                  <div className="absolute inset-0 bg-[#09090B]/30" />
                 </div>
-                <div className="flex items-start space-x-3">
-                  <CheckCircle className="w-6 h-6 text-red-600 flex-shrink-0 mt-1" />
-                  <div>
-                    <h4 className="font-semibold text-gray-800">AI-Matched Candidates</h4>
-                    <p className="text-gray-600 text-sm">
-                      Receive candidates that match your requirements
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-start space-x-3">
-                  <CheckCircle className="w-6 h-6 text-red-600 flex-shrink-0 mt-1" />
-                  <div>
-                    <h4 className="font-semibold text-gray-800">Manage Applications</h4>
-                    <p className="text-gray-600 text-sm">
-                      Track and organize candidate pipeline efficiently
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-start space-x-3">
-                  <CheckCircle className="w-6 h-6 text-red-600 flex-shrink-0 mt-1" />
-                  <div>
-                    <h4 className="font-semibold text-gray-800">Access via API</h4>
-                    <p className="text-gray-600 text-sm">
-                      Integrate with your existing recruitment systems
-                    </p>
-                  </div>
+
+                <div className="flex flex-col gap-3">
+                  {RECRUITER_CARDS.map((c, i) => (
+                    <motion.div
+                      key={c.title}
+                      initial={{ opacity: 0, x: 30 }}
+                      whileInView={{ opacity: 1, x: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.5, delay: i * 0.1 }}
+                      className="group flex items-center gap-4 border border-white/12 p-4 hover:border-[#FF3300]/50 transition-colors duration-200"
+                    >
+                      <span className="grid place-items-center h-11 w-11 bg-white/[0.04] text-[#FF3300] shrink-0">
+                        <c.icon size={20} strokeWidth={1.9} />
+                      </span>
+                      <div>
+                        <p className="text-base font-medium" style={{ fontFamily: '"Clash Display", sans-serif' }}>{c.title}</p>
+                        <p className="text-white/45 text-xs mt-0.5">{c.sub}</p>
+                      </div>
+                    </motion.div>
+                  ))}
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* CTA Section */}
-      <section className="py-16 px-4 bg-gradient-to-r from-orange-600 to-red-600">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
-            Ready to Connect with Your Career?
-          </h2>
-          <p className="text-xl text-orange-100 mb-8">
-            Join thousands of students and recruiters using AI-powered career guidance
-          </p>
-          <div className="flex flex-wrap gap-4 justify-center">
-            <Link
-              to="/student"
-              className="bg-white text-orange-600 px-8 py-4 rounded-lg hover:bg-gray-100 transition-all font-semibold"
-            >
-              Start as Student
-            </Link>
-            <Link
-              to="/recruiter"
-              className="bg-orange-700 text-white px-8 py-4 rounded-lg hover:bg-orange-800 transition-all border-2 border-white font-semibold"
-            >
-              Join as Recruiter
-            </Link>
+        {/* MANIFESTO */}
+        <section className="bg-[#09090B] text-[#FAFAFA] py-24 sm:py-32 border-t border-white/10">
+          <div className="mx-auto max-w-[1400px] px-5 sm:px-8">
+            <h2 className="font-semibold text-4xl sm:text-5xl tracking-tighter mb-20 max-w-2xl leading-[0.95]" style={{ fontFamily: '"Clash Display", sans-serif' }}>
+              Why we built <span className="text-[#FF3300]">Career Connector.</span>
+            </h2>
+
+            <div className="flex flex-col">
+              {MANIFESTO.map((m) => (
+                <motion.div
+                  key={m.n}
+                  initial={{ opacity: 0, y: 40 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-80px" }}
+                  transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+                  className="grid grid-cols-1 md:grid-cols-12 gap-6 py-12 border-t border-white/10 items-start"
+                >
+                  <div className="md:col-span-3">
+                    <span className="text-7xl sm:text-8xl text-[#FF3300] leading-none tracking-tighter" style={{ fontFamily: '"Clash Display", sans-serif' }}>{m.n}</span>
+                  </div>
+                  <h3 className="md:col-span-4 text-2xl sm:text-3xl font-medium tracking-tight leading-tight" style={{ fontFamily: '"Clash Display", sans-serif' }}>{m.title}</h3>
+                  <p className="md:col-span-5 text-white/55 text-base leading-relaxed md:pt-2">{m.body}</p>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+      </main>
+
+      {/* FOOTER */}
+      <footer className="bg-[#09090B] text-[#FAFAFA] border-t border-white/10">
+        <div className="mx-auto max-w-[1400px] px-5 sm:px-8 py-24 sm:py-32">
+          <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }} className="flex flex-col items-start">
+            <p className="text-[11px] uppercase tracking-[0.3em] text-[#FF3300] mb-8" style={{ fontFamily: '"JetBrains Mono", monospace' }}>/ Start today</p>
+            <h2 className="font-semibold text-[13vw] sm:text-[10vw] lg:text-[8vw] leading-[0.85] tracking-tighter" style={{ fontFamily: '"Clash Display", sans-serif' }}>
+              Map your <span className="text-[#FF3300] italic">future.</span>
+            </h2>
+            <div className="mt-12 flex flex-wrap gap-4">
+              <Link to="/student" className="group inline-flex items-center gap-2 bg-[#FAFAFA] text-[#09090B] px-8 py-4 font-medium text-sm hover:bg-[#FF3300] hover:text-white transition-colors duration-200">
+                Get Started as Student
+                <ArrowUpRight size={17} className="transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+              </Link>
+              <Link to="/recruiter" className="group inline-flex items-center gap-2 border border-white/25 px-8 py-4 font-medium text-sm hover:border-white/60 transition-colors duration-200">
+                I'm a Recruiter
+                <ArrowUpRight size={17} className="transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+              </Link>
+            </div>
+          </motion.div>
+        </div>
+
+        <div className="border-t border-white/10">
+          <div className="mx-auto max-w-[1400px] px-5 sm:px-8 py-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+            <div className="flex items-center gap-3">
+              <span className="grid place-items-center h-8 w-8 bg-[#FF3300] text-white">
+                <BrainCircuit size={17} />
+              </span>
+              <span className="font-semibold text-base tracking-tight" style={{ fontFamily: '"Clash Display", sans-serif' }}>Career Connector</span>
+            </div>
+            <div className="flex flex-wrap gap-x-8 gap-y-3">
+              {["Home", "Features", "Jobs", "Recruiter Portal", "Privacy"].map((l) => (
+                <a key={l} href="#home" className="text-[10px] uppercase tracking-[0.2em] text-white/50 hover:text-white transition-colors duration-200" style={{ fontFamily: '"JetBrains Mono", monospace' }}>
+                  {l}
+                </a>
+              ))}
+            </div>
+            <p className="text-[10px] uppercase tracking-[0.2em] text-white/35" style={{ fontFamily: '"JetBrains Mono", monospace' }}>
+              © {new Date().getFullYear()} Career Connector
+            </p>
           </div>
         </div>
-      </section>
+      </footer>
     </div>
   );
 }
