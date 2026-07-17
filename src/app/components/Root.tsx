@@ -8,7 +8,6 @@ export function Root() {
   const token = localStorage.getItem("token");
   const [menuOpen, setMenuOpen] = useState(false)
 
-  // Get role from JWT token
   const getRole = () => {
     if (!token) return null
     try {
@@ -54,7 +53,9 @@ export function Root() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
-      {!isHomePage && (
+
+      {/* ✅ Hide header on homepage AND auth pages */}
+      {!isHomePage && !isAuthPage && (
         <header className="bg-white border-b-2 border-gray-100 sticky top-0 z-50 shadow-sm">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center h-18 py-3">
@@ -73,119 +74,101 @@ export function Root() {
               </Link>
 
               {/* Desktop Nav */}
-              {!isAuthPage && !isHomePage && (
-                <nav className="hidden md:flex items-center space-x-2">
+              <nav className="hidden md:flex items-center space-x-2">
+                <Link to="/" className={navLinkClass("/", true)}>
+                  <Home className="w-4 h-4" />
+                  <span>Home</span>
+                </Link>
 
-                  <Link to="/" className={navLinkClass("/", true)}>
-                    <Home className="w-4 h-4" />
-                    <span>Home</span>
+                {isStudent && (
+                  <Link to="/student" className={navLinkClass("/student")}>
+                    <Users className="w-4 h-4" />
+                    <span>Student Portal</span>
                   </Link>
+                )}
 
-                  {/* Show Student Portal only for students */}
-                  {isStudent && (
-                    <Link to="/student" className={navLinkClass("/student")}>
-                      <Users className="w-4 h-4" />
-                      <span>Student Portal</span>
+                {isRecruiter && (
+                  <Link to="/recruiter" className={navLinkClass("/recruiter")}>
+                    <Users className="w-4 h-4" />
+                    <span>Recruiter Portal</span>
+                  </Link>
+                )}
+
+                {isStudent && (
+                  <>
+                    <Link to="/jobs" className={navLinkClass("/jobs")}>
+                      <Briefcase className="w-4 h-4" />
+                      <span>Jobs</span>
+                    </Link>
+                    <Link to="/livejobs" className={navLinkClass("/livejobs")}>
+                      <Search className="w-4 h-4" />
+                      <span>Live Jobs</span>
+                    </Link>
+                  </>
+                )}
+
+                {!token && (
+                  <>
+                    <Link to="/jobs" className={navLinkClass("/jobs")}>
+                      <Briefcase className="w-4 h-4" />
+                      <span>Jobs</span>
+                    </Link>
+                    <Link to="/livejobs" className={navLinkClass("/livejobs")}>
+                      <Search className="w-4 h-4" />
+                      <span>Live Jobs</span>
+                    </Link>
+                  </>
+                )}
+
+                <div className="ml-2 pl-2 border-l border-gray-200">
+                  {token ? (
+                    <button
+                      onClick={handleLogout}
+                      className="flex items-center space-x-2 px-5 py-2.5 rounded-full border-2 border-red-500 text-red-600 font-semibold text-sm hover:bg-red-50 transition-all"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      <span>Logout</span>
+                    </button>
+                  ) : (
+                    <Link
+                      to="/login"
+                      className="flex items-center space-x-2 px-6 py-2.5 rounded-full bg-gradient-to-r from-orange-600 to-red-600 text-white font-semibold text-sm shadow-md hover:shadow-lg transition-all"
+                    >
+                      <LogIn className="w-4 h-4" />
+                      <span>Login</span>
                     </Link>
                   )}
-
-                  {/* Show Recruiter Portal only for recruiters */}
-                  {isRecruiter && (
-                    <Link to="/recruiter" className={navLinkClass("/recruiter")}>
-                      <Users className="w-4 h-4" />
-                      <span>Recruiter Portal</span>
-                    </Link>
-                  )}
-
-                  {/* Show Jobs and Live Jobs only for students */}
-                  {isStudent && (
-                    <>
-                      <Link to="/jobs" className={navLinkClass("/jobs")}>
-                        <Briefcase className="w-4 h-4" />
-                        <span>Jobs</span>
-                      </Link>
-
-                      <Link to="/livejobs" className={navLinkClass("/livejobs")}>
-                        <Search className="w-4 h-4" />
-                        <span>Live Jobs</span>
-                      </Link>
-                    </>
-                  )}
-
-                  {/* Show Jobs and Live Jobs when not logged in */}
-                  {!token && (
-                    <>
-                      <Link to="/jobs" className={navLinkClass("/jobs")}>
-                        <Briefcase className="w-4 h-4" />
-                        <span>Jobs</span>
-                      </Link>
-
-                      <Link to="/livejobs" className={navLinkClass("/livejobs")}>
-                        <Search className="w-4 h-4" />
-                        <span>Live Jobs</span>
-                      </Link>
-                    </>
-                  )}
-
-                  <div className="ml-2 pl-2 border-l border-gray-200">
-                    {token ? (
-                      <button
-                        onClick={handleLogout}
-                        className="flex items-center space-x-2 px-5 py-2.5 rounded-full border-2 border-red-500 text-red-600 font-semibold text-sm hover:bg-red-50 transition-all"
-                      >
-                        <LogOut className="w-4 h-4" />
-                        <span>Logout</span>
-                      </button>
-                    ) : (
-                      <Link
-                        to="/login"
-                        className="flex items-center space-x-2 px-6 py-2.5 rounded-full bg-gradient-to-r from-orange-600 to-red-600 text-white font-semibold text-sm shadow-md hover:shadow-lg transition-all"
-                      >
-                        <LogIn className="w-4 h-4" />
-                        <span>Login</span>
-                      </Link>
-                    )}
-                  </div>
-                </nav>
-              )}
+                </div>
+              </nav>
 
               {/* Mobile Hamburger */}
-              {!isAuthPage && !isHomePage && (
-                <button
-                  className="md:hidden p-2 rounded-lg text-gray-700 hover:bg-gray-100 transition-all"
-                  onClick={() => setMenuOpen(!menuOpen)}
-                >
-                  {menuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-                </button>
-              )}
+              <button
+                className="md:hidden p-2 rounded-lg text-gray-700 hover:bg-gray-100 transition-all"
+                onClick={() => setMenuOpen(!menuOpen)}
+              >
+                {menuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              </button>
             </div>
           </div>
 
           {/* Mobile Menu */}
-          {!isAuthPage && !isHomePage && menuOpen && (
+          {menuOpen && (
             <div className="md:hidden bg-white border-t border-gray-100 px-4 py-3 space-y-1 shadow-lg">
               <Link
                 to="/"
                 onClick={closeMenu}
                 className={`flex items-center space-x-3 px-4 py-3 rounded-lg font-semibold transition-all ${
-                  isActive("/") && location.pathname === "/"
-                    ? "bg-orange-50 text-orange-600"
-                    : "text-gray-700 hover:bg-gray-100"
+                  location.pathname === "/" ? "bg-orange-50 text-orange-600" : "text-gray-700 hover:bg-gray-100"
                 }`}
               >
                 <Home className="w-5 h-5" />
                 <span>Home</span>
               </Link>
 
-              {/* Student Portal — students only */}
               {isStudent && (
-                <Link
-                  to="/student"
-                  onClick={closeMenu}
+                <Link to="/student" onClick={closeMenu}
                   className={`flex items-center space-x-3 px-4 py-3 rounded-lg font-semibold transition-all ${
-                    isActive("/student")
-                      ? "bg-orange-50 text-orange-600"
-                      : "text-gray-700 hover:bg-gray-100"
+                    isActive("/student") ? "bg-orange-50 text-orange-600" : "text-gray-700 hover:bg-gray-100"
                   }`}
                 >
                   <Users className="w-5 h-5" />
@@ -193,15 +176,10 @@ export function Root() {
                 </Link>
               )}
 
-              {/* Recruiter Portal — recruiters only */}
               {isRecruiter && (
-                <Link
-                  to="/recruiter"
-                  onClick={closeMenu}
+                <Link to="/recruiter" onClick={closeMenu}
                   className={`flex items-center space-x-3 px-4 py-3 rounded-lg font-semibold transition-all ${
-                    isActive("/recruiter")
-                      ? "bg-orange-50 text-orange-600"
-                      : "text-gray-700 hover:bg-gray-100"
+                    isActive("/recruiter") ? "bg-orange-50 text-orange-600" : "text-gray-700 hover:bg-gray-100"
                   }`}
                 >
                   <Users className="w-5 h-5" />
@@ -209,29 +187,19 @@ export function Root() {
                 </Link>
               )}
 
-              {/* Jobs and Live Jobs — students and non logged in */}
               {(isStudent || !token) && (
                 <>
-                  <Link
-                    to="/jobs"
-                    onClick={closeMenu}
+                  <Link to="/jobs" onClick={closeMenu}
                     className={`flex items-center space-x-3 px-4 py-3 rounded-lg font-semibold transition-all ${
-                      isActive("/jobs")
-                        ? "bg-orange-50 text-orange-600"
-                        : "text-gray-700 hover:bg-gray-100"
+                      isActive("/jobs") ? "bg-orange-50 text-orange-600" : "text-gray-700 hover:bg-gray-100"
                     }`}
                   >
                     <Briefcase className="w-5 h-5" />
                     <span>Jobs</span>
                   </Link>
-
-                  <Link
-                    to="/livejobs"
-                    onClick={closeMenu}
+                  <Link to="/livejobs" onClick={closeMenu}
                     className={`flex items-center space-x-3 px-4 py-3 rounded-lg font-semibold transition-all ${
-                      isActive("/livejobs")
-                        ? "bg-orange-50 text-orange-600"
-                        : "text-gray-700 hover:bg-gray-100"
+                      isActive("/livejobs") ? "bg-orange-50 text-orange-600" : "text-gray-700 hover:bg-gray-100"
                     }`}
                   >
                     <Search className="w-5 h-5" />
@@ -242,17 +210,14 @@ export function Root() {
 
               <div className="pt-2 border-t border-gray-100">
                 {token ? (
-                  <button
-                    onClick={handleLogout}
+                  <button onClick={handleLogout}
                     className="w-full flex items-center space-x-3 px-4 py-3 rounded-full border-2 border-red-500 text-red-600 font-semibold transition-all hover:bg-red-50"
                   >
                     <LogOut className="w-5 h-5" />
                     <span>Logout</span>
                   </button>
                 ) : (
-                  <Link
-                    to="/login"
-                    onClick={closeMenu}
+                  <Link to="/login" onClick={closeMenu}
                     className="flex items-center justify-center space-x-3 px-4 py-3 rounded-full bg-gradient-to-r from-orange-600 to-red-600 text-white font-semibold shadow-md transition-all"
                   >
                     <LogIn className="w-5 h-5" />
@@ -269,7 +234,8 @@ export function Root() {
         <Outlet />
       </main>
 
-      {!isHomePage && (
+      {/* ✅ Hide footer on homepage AND auth pages */}
+      {!isHomePage && !isAuthPage && (
         <footer className="bg-white/80 backdrop-blur-sm border-t border-indigo-100 mt-16">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div className="text-center text-gray-600">
