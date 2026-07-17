@@ -153,26 +153,40 @@ export function Home() {
     <div className="min-h-screen">
       {/* Merged Hero + Recruiter Section */}
       <section className="relative overflow-hidden bg-gradient-to-br from-orange-600 via-red-600 to-red-800">
-        <div className="max-w-6xl mx-auto px-4 pt-16 pb-10 text-center relative z-10">
-          <div className="inline-block mb-6">
-            <div className="bg-white/15 backdrop-blur-sm p-4 rounded-2xl border border-white/20">
-              <Brain className="w-16 h-16 text-white" />
+        <div className="max-w-6xl mx-auto px-4 pt-16 pb-10 relative z-10">
+          <div className="grid md:grid-cols-2 gap-10 items-center">
+            {/* Left: Text content */}
+            <div className="text-center md:text-left">
+              <div className="inline-block mb-6">
+                <div className="bg-white/15 backdrop-blur-sm p-4 rounded-2xl border border-white/20">
+                  <Brain className="w-16 h-16 text-white" />
+                </div>
+              </div>
+              <h1 className="text-5xl md:text-6xl font-bold mb-6 text-white">
+                Career Connector
+              </h1>
+              <p className="text-xl md:text-2xl text-orange-50 mb-4">
+                AI-Powered Ecosystem Bridging Job Seekers & Employers
+              </p>
+              <p className="text-lg text-orange-100 mb-10 max-w-xl">
+                Democratizing career guidance through AI-driven resume analysis, cognitive aptitude
+                testing, and personality profiling to provide data-backed career paths and identify
+                skill gaps.
+              </p>
+            </div>
+
+            {/* Right: Photo */}
+            <div className="hidden md:flex items-center justify-center">
+              <img
+                src="/images/hero-job-search.png"
+                alt="Person searching for jobs on laptop"
+                className="rounded-2xl shadow-2xl w-full max-w-md object-cover border-4 border-white/20"
+              />
             </div>
           </div>
-          <h1 className="text-5xl md:text-6xl font-bold mb-6 text-white">
-            Career Connector
-          </h1>
-          <p className="text-xl md:text-2xl text-orange-50 mb-4">
-            AI-Powered Ecosystem Bridging Job Seekers & Employers
-          </p>
-          <p className="text-lg text-orange-100 mb-10 max-w-3xl mx-auto">
-            Democratizing career guidance through AI-driven resume analysis, cognitive aptitude
-            testing, and personality profiling to provide data-backed career paths and identify
-            skill gaps.
-          </p>
 
           {/* Search Bar */}
-          <div className="max-w-3xl mx-auto mb-8">
+          <div className="max-w-3xl mx-auto mt-4 mb-8">
             <div className="bg-white rounded-xl shadow-2xl p-2 flex flex-col md:flex-row gap-2">
               <div className="flex items-center flex-1 px-3">
                 <Search className="w-5 h-5 text-gray-400 flex-shrink-0" />
