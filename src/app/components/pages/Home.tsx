@@ -223,16 +223,13 @@ const handleRecruiterPortal = () => {
   </button>
 </div>
           
-
-          <div className="hidden md:flex items-center gap-3">
-            <Link to="/recruiter" className="text-[11px] uppercase tracking-[0.2em] text-white/70 hover:text-white transition-colors duration-200" style={{ fontFamily: '"JetBrains Mono", monospace' }}>
-              Recruiter Portal
-            </Link>
-            <Link to="/login" className="group inline-flex items-center gap-2 bg-[#FAFAFA] text-[#09090B] px-5 py-2.5 font-medium text-sm hover:bg-[#FF3300] hover:text-white transition-colors duration-200">
-              Get started
-              <ArrowUpRight size={16} className="transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-            </Link>
-          </div>
+<div className="hidden md:flex items-center gap-3">
+  <Link to="/login" className="group inline-flex items-center gap-2 bg-[#FAFAFA] text-[#09090B] px-5 py-2.5 font-medium text-sm hover:bg-[#FF3300] hover:text-white transition-colors duration-200">
+    Get started
+    <ArrowUpRight size={16} className="transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+  </Link>
+</div>
+           
 
           <button onClick={() => setMobileOpen((v) => !v)} className="md:hidden text-[#FAFAFA]" aria-label="Toggle menu">
             {mobileOpen ? <X size={24} /> : <Menu size={24} />}
