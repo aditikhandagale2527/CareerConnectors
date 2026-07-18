@@ -114,12 +114,34 @@ export function Home() {
     }
   };
 
-  const handleSearch = () => {
-    const params = new URLSearchParams();
-    if (searchTerm) params.set("q", searchTerm);
-    if (searchLocation) params.set("location", searchLocation);
-    navigate(`/livejobs?${params.toString()}`);
-  };
+  const token = localStorage.getItem("token")
+
+const handleSearch = () => {
+  if (!token) {
+    navigate("/login")
+    return
+  }
+  const params = new URLSearchParams();
+  if (searchTerm) params.set("q", searchTerm);
+  if (searchLocation) params.set("location", searchLocation);
+  navigate(`/livejobs?${params.toString()}`);
+};
+
+const handleStudentPortal = () => {
+  if (!token) {
+    navigate("/login")
+    return
+  }
+  navigate("/student")
+}
+
+const handleRecruiterPortal = () => {
+  if (!token) {
+    navigate("/login")
+    return
+  }
+  navigate("/recruiter")
+}
 
   const handleApply = async (jobId: string) => {
     const token = localStorage.getItem("token");
