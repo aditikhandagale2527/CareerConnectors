@@ -598,9 +598,10 @@ const handleRecruiterPortal = () => {
               <Link to="/student" className="group inline-flex items-center gap-2 bg-[#FAFAFA] text-[#09090B] px-8 py-4 font-medium text-sm hover:bg-[#FF3300] hover:text-white transition-colors duration-200">
                 Get Started as Student
                 <ArrowUpRight size={17} className="transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-              </Link>
-              <Link to="/recruiter" className="group inline-flex items-center gap-2 border border-white/25 px-8 py-4 font-medium text-sm hover:border-white/60 transition-colors duration-200">
-                I'm a Recruiter
+             <button onClick={handleRecruiterPortal} className="group inline-flex items-center gap-2 border border-white/25 text-[#FAFAFA] px-6 py-3 font-medium text-sm hover:border-white/60 transition-colors duration-200">
+  I'm a Recruiter
+  <ArrowRight size={16} className="transition-transform duration-200 group-hover:translate-x-1" />
+</button>
                 <ArrowUpRight size={17} className="transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
               </Link>
             </div>
