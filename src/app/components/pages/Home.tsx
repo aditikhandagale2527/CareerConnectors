@@ -57,10 +57,8 @@ export function Home() {
   const navigate = useNavigate();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-
   const [searchTerm, setSearchTerm] = useState("");
   const [searchLocation, setSearchLocation] = useState("");
-
   const [allJobs, setAllJobs] = useState<any[]>([]);
   const [loadingJobs, setLoadingJobs] = useState(true);
   const [appliedJobs, setAppliedJobs] = useState<string[]>([]);
@@ -114,37 +112,36 @@ export function Home() {
     }
   };
 
-  const token = localStorage.getItem("token")
+  const token = localStorage.getItem("token");
 
-const handleSearch = () => {
-  if (!token) {
-    navigate("/login")
-    return
-  }
-  const params = new URLSearchParams();
-  if (searchTerm) params.set("q", searchTerm);
-  if (searchLocation) params.set("location", searchLocation);
-  navigate(`/livejobs?${params.toString()}`);
-};
+  const handleSearch = () => {
+    if (!token) {
+      navigate("/login");
+      return;
+    }
+    const params = new URLSearchParams();
+    if (searchTerm) params.set("q", searchTerm);
+    if (searchLocation) params.set("location", searchLocation);
+    navigate(`/livejobs?${params.toString()}`);
+  };
 
-const handleStudentPortal = () => {
-  if (!token) {
-    navigate("/login")
-    return
-  }
-  navigate("/student")
-}
+  const handleStudentPortal = () => {
+    if (!token) {
+      navigate("/login");
+      return;
+    }
+    navigate("/student");
+  };
 
-const handleRecruiterPortal = () => {
-  if (!token) {
-    navigate("/login")
-    return
-  }
-  navigate("/recruiter")
-}
+  const handleRecruiterPortal = () => {
+    if (!token) {
+      navigate("/login");
+      return;
+    }
+    navigate("/recruiter");
+  };
 
   const handleApply = async (jobId: string) => {
-    const token = localStorage.getItem("token");
     if (!token) {
       alert("Please login first to apply for jobs!");
       navigate("/login");
@@ -201,70 +198,72 @@ const handleRecruiterPortal = () => {
               </span>
             </span>
           </a>
-<div className="hidden md:flex items-center gap-9">
-  {NAV_LINKS.map((l) => (
-    <a key={l.label} href={l.href} className="text-[11px] uppercase tracking-[0.2em] text-white/60 hover:text-white transition-colors duration-200" style={{ fontFamily: '"JetBrains Mono", monospace' }}>
-      {l.label}
-    </a>
-  ))}
-  <button
-    onClick={handleStudentPortal}
-    className="text-[11px] uppercase tracking-[0.2em] text-white/60 hover:text-white transition-colors duration-200"
-    style={{ fontFamily: '"JetBrains Mono", monospace' }}
-  >
-    Student Portal
-  </button>
-  <button
-    onClick={handleRecruiterPortal}
-    className="text-[11px] uppercase tracking-[0.2em] text-white/60 hover:text-white transition-colors duration-200"
-    style={{ fontFamily: '"JetBrains Mono", monospace' }}
-  >
-    Recruiter Portal
-  </button>
-</div>
-          
-<div className="hidden md:flex items-center gap-3">
-  <Link to="/login" className="group inline-flex items-center gap-2 bg-[#FAFAFA] text-[#09090B] px-5 py-2.5 font-medium text-sm hover:bg-[#FF3300] hover:text-white transition-colors duration-200">
-    Get started
-    <ArrowUpRight size={16} className="transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-  </Link>
-</div>
-           
 
+          {/* Desktop Nav Links */}
+          <div className="hidden md:flex items-center gap-9">
+            {NAV_LINKS.map((l) => (
+              <a key={l.label} href={l.href} className="text-[11px] uppercase tracking-[0.2em] text-white/60 hover:text-white transition-colors duration-200" style={{ fontFamily: '"JetBrains Mono", monospace' }}>
+                {l.label}
+              </a>
+            ))}
+            <button
+              onClick={handleStudentPortal}
+              className="text-[11px] uppercase tracking-[0.2em] text-white/60 hover:text-white transition-colors duration-200"
+              style={{ fontFamily: '"JetBrains Mono", monospace' }}
+            >
+              Student Portal
+            </button>
+            <button
+              onClick={handleRecruiterPortal}
+              className="text-[11px] uppercase tracking-[0.2em] text-white/60 hover:text-white transition-colors duration-200"
+              style={{ fontFamily: '"JetBrains Mono", monospace' }}
+            >
+              Recruiter Portal
+            </button>
+          </div>
+
+          {/* Get Started Button */}
+          <div className="hidden md:flex items-center gap-3">
+            <Link to="/login" className="group inline-flex items-center gap-2 bg-[#FAFAFA] text-[#09090B] px-5 py-2.5 font-medium text-sm hover:bg-[#FF3300] hover:text-white transition-colors duration-200">
+              Get started
+              <ArrowUpRight size={16} className="transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+            </Link>
+          </div>
+
+          {/* Mobile Hamburger */}
           <button onClick={() => setMobileOpen((v) => !v)} className="md:hidden text-[#FAFAFA]" aria-label="Toggle menu">
             {mobileOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
         </nav>
 
-         {mobileOpen && (
-  <div className="md:hidden bg-black/95 backdrop-blur-xl border-t border-white/10 px-5 py-6 flex flex-col gap-5">
-    {NAV_LINKS.map((l) => (
-      <a key={l.label} href={l.href} onClick={() => setMobileOpen(false)} className="text-xs uppercase tracking-[0.2em] text-white/70" style={{ fontFamily: '"JetBrains Mono", monospace' }}>
-        {l.label}
-      </a>
-    ))}
-
-    {/* ✅ Add these 2 buttons */}
-    <button
-      onClick={() => { setMobileOpen(false); handleStudentPortal() }}
-      className="text-xs uppercase tracking-[0.2em] text-white/70 text-left"
-      style={{ fontFamily: '"JetBrains Mono", monospace' }}
-    >
-      Student Portal
-    </button>
-    <button
-      onClick={() => { setMobileOpen(false); handleRecruiterPortal() }}
-      className="text-xs uppercase tracking-[0.2em] text-white/70 text-left"
-      style={{ fontFamily: '"JetBrains Mono", monospace' }}
-    >
-      Recruiter Portal
-    </button>
-
-    <Link to="/login" onClick={() => setMobileOpen(false)} className="bg-[#FAFAFA] text-[#09090B] px-5 py-3 text-center font-medium text-sm">
-      Get started
-    </Link>
-  </div>
-)}
+        {/* Mobile Menu */}
+        {mobileOpen && (
+          <div className="md:hidden bg-black/95 backdrop-blur-xl border-t border-white/10 px-5 py-6 flex flex-col gap-5">
+            {NAV_LINKS.map((l) => (
+              <a key={l.label} href={l.href} onClick={() => setMobileOpen(false)} className="text-xs uppercase tracking-[0.2em] text-white/70" style={{ fontFamily: '"JetBrains Mono", monospace' }}>
+                {l.label}
+              </a>
+            ))}
+            <button
+              onClick={() => { setMobileOpen(false); handleStudentPortal(); }}
+              className="text-xs uppercase tracking-[0.2em] text-white/70 text-left"
+              style={{ fontFamily: '"JetBrains Mono", monospace' }}
+            >
+              Student Portal
+            </button>
+            <button
+              onClick={() => { setMobileOpen(false); handleRecruiterPortal(); }}
+              className="text-xs uppercase tracking-[0.2em] text-white/70 text-left"
+              style={{ fontFamily: '"JetBrains Mono", monospace' }}
+            >
+              Recruiter Portal
+            </button>
+            <Link to="/login" onClick={() => setMobileOpen(false)} className="bg-[#FAFAFA] text-[#09090B] px-5 py-3 text-center font-medium text-sm">
+              Get started
+            </Link>
+          </div>
+        )}
+      </header>
 
       <main>
         {/* HERO */}
@@ -333,16 +332,20 @@ const handleRecruiterPortal = () => {
               </motion.div>
 
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.6, delay: 1.25 }} className="mt-6 flex flex-wrap gap-3">
-                 <button onClick={handleStudentPortal} className="group inline-flex items-center gap-2 bg-[#FAFAFA] text-[#09090B] px-6 py-3 font-medium text-sm hover:bg-white transition-colors duration-200">
-  Get Started as Student
-  <ArrowRight size={16} className="transition-transform duration-200 group-hover:translate-x-1" />
-</button>
+                <button
+                  onClick={handleStudentPortal}
+                  className="group inline-flex items-center gap-2 bg-[#FAFAFA] text-[#09090B] px-6 py-3 font-medium text-sm hover:bg-white transition-colors duration-200"
+                >
+                  Get Started as Student
                   <ArrowRight size={16} className="transition-transform duration-200 group-hover:translate-x-1" />
-                </Link>
-                <Link to="/recruiter" className="group inline-flex items-center gap-2 border border-white/25 text-[#FAFAFA] px-6 py-3 font-medium text-sm hover:border-white/60 transition-colors duration-200">
+                </button>
+                <button
+                  onClick={handleRecruiterPortal}
+                  className="group inline-flex items-center gap-2 border border-white/25 text-[#FAFAFA] px-6 py-3 font-medium text-sm hover:border-white/60 transition-colors duration-200"
+                >
                   I'm a Recruiter
                   <ArrowRight size={16} className="transition-transform duration-200 group-hover:translate-x-1" />
-                </Link>
+                </button>
               </motion.div>
             </div>
 
@@ -409,7 +412,6 @@ const handleRecruiterPortal = () => {
                 Six connected engines that read, reason and recommend — turning scattered signals into one clear direction.
               </p>
             </div>
-
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 border-t border-l border-black/10">
               {FEATURES.map((f, i) => {
                 const Icon = f.icon;
@@ -483,15 +485,12 @@ const handleRecruiterPortal = () => {
                         Career Connector
                       </span>
                     </div>
-
                     <h3 className="text-2xl font-medium tracking-tight leading-tight" style={{ fontFamily: '"Clash Display", sans-serif' }}>{job.title}</h3>
                     <p className="text-[#FF3300] font-medium text-sm mt-1">{job.company}</p>
                     <p className="flex items-center gap-1.5 text-black/50 text-xs mt-2">
                       <MapPin size={13} /> {job.location}
                     </p>
-
                     {job.description && <p className="text-sm text-black/60 leading-relaxed mt-4 line-clamp-2">{job.description}</p>}
-
                     <div className="flex flex-wrap gap-2 mt-5 mb-6">
                       {job.skills_required?.slice(0, 4).map((s: string) => (
                         <span key={s} className="text-[10px] uppercase tracking-[0.1em] border border-black/12 px-2.5 py-1 text-black/70" style={{ fontFamily: '"JetBrains Mono", monospace' }}>
@@ -499,7 +498,6 @@ const handleRecruiterPortal = () => {
                         </span>
                       ))}
                     </div>
-
                     {appliedJobs.includes(job._id) ? (
                       <div className="mt-auto inline-flex items-center justify-center gap-2 bg-green-100 text-green-700 py-3 text-sm font-medium">
                         Applied!
@@ -525,7 +523,6 @@ const handleRecruiterPortal = () => {
         <section id="recruiters" ref={recruiterRef} className="bg-[#09090B] text-[#FAFAFA] py-24 sm:py-32 overflow-hidden">
           <div className="mx-auto max-w-[1400px] px-5 sm:px-8">
             <p className="text-[11px] uppercase tracking-[0.3em] text-[#FF3300] mb-6" style={{ fontFamily: '"JetBrains Mono", monospace' }}>/ Career Connector for Recruiters</p>
-
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
               <div className="lg:col-span-7 flex flex-col justify-between border border-white/12 p-8 lg:p-12">
                 <h2 className="font-semibold text-5xl sm:text-6xl lg:text-7xl tracking-tighter leading-[0.9]" style={{ fontFamily: '"Clash Display", sans-serif' }}>
@@ -535,19 +532,20 @@ const handleRecruiterPortal = () => {
                   <p className="text-white/55 max-w-md leading-relaxed">
                     No matter the skills, experience or qualifications you're looking for, our AI-powered matching surfaces the right candidates — ranked, scored and ready.
                   </p>
-                  <Link to="/recruiter" className="group mt-8 inline-flex items-center gap-2 bg-[#FAFAFA] text-[#09090B] px-7 py-3.5 font-medium text-sm hover:bg-[#FF3300] hover:text-white transition-colors duration-200">
+                  <button
+                    onClick={handleRecruiterPortal}
+                    className="group mt-8 inline-flex items-center gap-2 bg-[#FAFAFA] text-[#09090B] px-7 py-3.5 font-medium text-sm hover:bg-[#FF3300] hover:text-white transition-colors duration-200"
+                  >
                     Post a Job
                     <ArrowRight size={16} className="transition-transform duration-200 group-hover:translate-x-1" />
-                  </Link>
+                  </button>
                 </div>
               </div>
-
               <div className="lg:col-span-5 flex flex-col gap-6">
                 <div className="relative h-56 overflow-hidden border border-white/12">
                   <motion.img src={RECRUITER_IMG} alt="Modern corporate hiring meeting room" style={{ y: recruiterImgY }} className="absolute inset-0 h-[125%] w-full object-cover" />
                   <div className="absolute inset-0 bg-[#09090B]/30" />
                 </div>
-
                 <div className="flex flex-col gap-3">
                   {RECRUITER_CARDS.map((c, i) => (
                     <motion.div
@@ -579,7 +577,6 @@ const handleRecruiterPortal = () => {
             <h2 className="font-semibold text-4xl sm:text-5xl tracking-tighter mb-20 max-w-2xl leading-[0.95]" style={{ fontFamily: '"Clash Display", sans-serif' }}>
               Why we built <span className="text-[#FF3300]">Career Connector.</span>
             </h2>
-
             <div className="flex flex-col">
               {MANIFESTO.map((m) => (
                 <motion.div
@@ -611,19 +608,23 @@ const handleRecruiterPortal = () => {
               Map your <span className="text-[#FF3300] italic">future.</span>
             </h2>
             <div className="mt-12 flex flex-wrap gap-4">
-              <Link to="/student" className="group inline-flex items-center gap-2 bg-[#FAFAFA] text-[#09090B] px-8 py-4 font-medium text-sm hover:bg-[#FF3300] hover:text-white transition-colors duration-200">
+              <button
+                onClick={handleStudentPortal}
+                className="group inline-flex items-center gap-2 bg-[#FAFAFA] text-[#09090B] px-8 py-4 font-medium text-sm hover:bg-[#FF3300] hover:text-white transition-colors duration-200"
+              >
                 Get Started as Student
                 <ArrowUpRight size={17} className="transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-             <button onClick={handleRecruiterPortal} className="group inline-flex items-center gap-2 border border-white/25 text-[#FAFAFA] px-6 py-3 font-medium text-sm hover:border-white/60 transition-colors duration-200">
-  I'm a Recruiter
-  <ArrowRight size={16} className="transition-transform duration-200 group-hover:translate-x-1" />
-</button>
+              </button>
+              <button
+                onClick={handleRecruiterPortal}
+                className="group inline-flex items-center gap-2 border border-white/25 px-8 py-4 font-medium text-sm hover:border-white/60 transition-colors duration-200"
+              >
+                I'm a Recruiter
                 <ArrowUpRight size={17} className="transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-              </Link>
+              </button>
             </div>
           </motion.div>
         </div>
-
         <div className="border-t border-white/10">
           <div className="mx-auto max-w-[1400px] px-5 sm:px-8 py-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
             <div className="flex items-center gap-3">
