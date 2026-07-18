@@ -317,8 +317,10 @@ const handleRecruiterPortal = () => {
               </motion.div>
 
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.6, delay: 1.25 }} className="mt-6 flex flex-wrap gap-3">
-                <Link to="/student" className="group inline-flex items-center gap-2 bg-[#FAFAFA] text-[#09090B] px-6 py-3 font-medium text-sm hover:bg-white transition-colors duration-200">
-                  Get Started as Student
+                 <button onClick={handleStudentPortal} className="group inline-flex items-center gap-2 bg-[#FAFAFA] text-[#09090B] px-6 py-3 font-medium text-sm hover:bg-white transition-colors duration-200">
+  Get Started as Student
+  <ArrowRight size={16} className="transition-transform duration-200 group-hover:translate-x-1" />
+</button>
                   <ArrowRight size={16} className="transition-transform duration-200 group-hover:translate-x-1" />
                 </Link>
                 <Link to="/recruiter" className="group inline-flex items-center gap-2 border border-white/25 text-[#FAFAFA] px-6 py-3 font-medium text-sm hover:border-white/60 transition-colors duration-200">
