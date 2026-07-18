@@ -236,19 +236,35 @@ const handleRecruiterPortal = () => {
           </button>
         </nav>
 
-        {mobileOpen && (
-          <div className="md:hidden bg-black/95 backdrop-blur-xl border-t border-white/10 px-5 py-6 flex flex-col gap-5">
-            {NAV_LINKS.map((l) => (
-              <a key={l.label} href={l.href} onClick={() => setMobileOpen(false)} className="text-xs uppercase tracking-[0.2em] text-white/70" style={{ fontFamily: '"JetBrains Mono", monospace' }}>
-                {l.label}
-              </a>
-            ))}
-            <Link to="/login" onClick={() => setMobileOpen(false)} className="bg-[#FAFAFA] text-[#09090B] px-5 py-3 text-center font-medium text-sm">
-              Get started
-            </Link>
-          </div>
-        )}
-      </header>
+         {mobileOpen && (
+  <div className="md:hidden bg-black/95 backdrop-blur-xl border-t border-white/10 px-5 py-6 flex flex-col gap-5">
+    {NAV_LINKS.map((l) => (
+      <a key={l.label} href={l.href} onClick={() => setMobileOpen(false)} className="text-xs uppercase tracking-[0.2em] text-white/70" style={{ fontFamily: '"JetBrains Mono", monospace' }}>
+        {l.label}
+      </a>
+    ))}
+
+    {/* ✅ Add these 2 buttons */}
+    <button
+      onClick={() => { setMobileOpen(false); handleStudentPortal() }}
+      className="text-xs uppercase tracking-[0.2em] text-white/70 text-left"
+      style={{ fontFamily: '"JetBrains Mono", monospace' }}
+    >
+      Student Portal
+    </button>
+    <button
+      onClick={() => { setMobileOpen(false); handleRecruiterPortal() }}
+      className="text-xs uppercase tracking-[0.2em] text-white/70 text-left"
+      style={{ fontFamily: '"JetBrains Mono", monospace' }}
+    >
+      Recruiter Portal
+    </button>
+
+    <Link to="/login" onClick={() => setMobileOpen(false)} className="bg-[#FAFAFA] text-[#09090B] px-5 py-3 text-center font-medium text-sm">
+      Get started
+    </Link>
+  </div>
+)}
 
       <main>
         {/* HERO */}
