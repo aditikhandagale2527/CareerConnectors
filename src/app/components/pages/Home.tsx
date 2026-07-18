@@ -201,14 +201,28 @@ const handleRecruiterPortal = () => {
               </span>
             </span>
           </a>
-
-          <div className="hidden md:flex items-center gap-9">
-            {NAV_LINKS.map((l) => (
-              <a key={l.label} href={l.href} className="text-[11px] uppercase tracking-[0.2em] text-white/60 hover:text-white transition-colors duration-200" style={{ fontFamily: '"JetBrains Mono", monospace' }}>
-                {l.label}
-              </a>
-            ))}
-          </div>
+<div className="hidden md:flex items-center gap-9">
+  {NAV_LINKS.map((l) => (
+    <a key={l.label} href={l.href} className="text-[11px] uppercase tracking-[0.2em] text-white/60 hover:text-white transition-colors duration-200" style={{ fontFamily: '"JetBrains Mono", monospace' }}>
+      {l.label}
+    </a>
+  ))}
+  <button
+    onClick={handleStudentPortal}
+    className="text-[11px] uppercase tracking-[0.2em] text-white/60 hover:text-white transition-colors duration-200"
+    style={{ fontFamily: '"JetBrains Mono", monospace' }}
+  >
+    Student Portal
+  </button>
+  <button
+    onClick={handleRecruiterPortal}
+    className="text-[11px] uppercase tracking-[0.2em] text-white/60 hover:text-white transition-colors duration-200"
+    style={{ fontFamily: '"JetBrains Mono", monospace' }}
+  >
+    Recruiter Portal
+  </button>
+</div>
+          
 
           <div className="hidden md:flex items-center gap-3">
             <Link to="/recruiter" className="text-[11px] uppercase tracking-[0.2em] text-white/70 hover:text-white transition-colors duration-200" style={{ fontFamily: '"JetBrains Mono", monospace' }}>
