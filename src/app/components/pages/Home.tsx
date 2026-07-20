@@ -64,6 +64,7 @@ export function Home() {
   const [appliedJobs, setAppliedJobs] = useState<string[]>([]);
   const [applying, setApplying] = useState<string | null>(null);
   const [applyResult, setApplyResult] = useState<{ score: number; status: string } | null>(null);
+  const [role, setRole] = useState<string | null>(null);
 
   const heroRef = useRef(null);
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
@@ -78,6 +79,7 @@ export function Home() {
     fetchJobs();
     const saved = localStorage.getItem("appliedJobs");
     if (saved) setAppliedJobs(JSON.parse(saved));
+    setRole(localStorage.getItem("role"));
 
     const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     let lenis: any;
@@ -206,20 +208,24 @@ export function Home() {
                 {l.label}
               </a>
             ))}
-            <button
-              onClick={handleStudentPortal}
-              className="text-[11px] uppercase tracking-[0.2em] text-white/60 hover:text-white transition-colors duration-200"
-              style={{ fontFamily: '"JetBrains Mono", monospace' }}
-            >
-              Student Portal
-            </button>
-            <button
-              onClick={handleRecruiterPortal}
-              className="text-[11px] uppercase tracking-[0.2em] text-white/60 hover:text-white transition-colors duration-200"
-              style={{ fontFamily: '"JetBrains Mono", monospace' }}
-            >
-              Recruiter Portal
-            </button>
+            {role !== "recruiter" && (
+              <button
+                onClick={handleStudentPortal}
+                className="text-[11px] uppercase tracking-[0.2em] text-white/60 hover:text-white transition-colors duration-200"
+                style={{ fontFamily: '"JetBrains Mono", monospace' }}
+              >
+                Student Portal
+              </button>
+            )}
+            {role !== "student" && (
+              <button
+                onClick={handleRecruiterPortal}
+                className="text-[11px] uppercase tracking-[0.2em] text-white/60 hover:text-white transition-colors duration-200"
+                style={{ fontFamily: '"JetBrains Mono", monospace' }}
+              >
+                Recruiter Portal
+              </button>
+            )}
           </div>
 
           {/* Get Started Button */}
@@ -244,20 +250,24 @@ export function Home() {
                 {l.label}
               </a>
             ))}
-            <button
-              onClick={() => { setMobileOpen(false); handleStudentPortal(); }}
-              className="text-xs uppercase tracking-[0.2em] text-white/70 text-left"
-              style={{ fontFamily: '"JetBrains Mono", monospace' }}
-            >
-              Student Portal
-            </button>
-            <button
-              onClick={() => { setMobileOpen(false); handleRecruiterPortal(); }}
-              className="text-xs uppercase tracking-[0.2em] text-white/70 text-left"
-              style={{ fontFamily: '"JetBrains Mono", monospace' }}
-            >
-              Recruiter Portal
-            </button>
+            {role !== "recruiter" && (
+              <button
+                onClick={() => { setMobileOpen(false); handleStudentPortal(); }}
+                className="text-xs uppercase tracking-[0.2em] text-white/70 text-left"
+                style={{ fontFamily: '"JetBrains Mono", monospace' }}
+              >
+                Student Portal
+              </button>
+            )}
+            {role !== "student" && (
+              <button
+                onClick={() => { setMobileOpen(false); handleRecruiterPortal(); }}
+                className="text-xs uppercase tracking-[0.2em] text-white/70 text-left"
+                style={{ fontFamily: '"JetBrains Mono", monospace' }}
+              >
+                Recruiter Portal
+              </button>
+            )}
             <Link to="/login" onClick={() => setMobileOpen(false)} className="bg-[#FAFAFA] text-[#09090B] px-5 py-3 text-center font-medium text-sm">
               Get started
             </Link>
@@ -332,20 +342,24 @@ export function Home() {
               </motion.div>
 
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.6, delay: 1.25 }} className="mt-6 flex flex-wrap gap-3">
-                <button
-                  onClick={handleStudentPortal}
-                  className="group inline-flex items-center gap-2 bg-[#FAFAFA] text-[#09090B] px-6 py-3 font-medium text-sm hover:bg-white transition-colors duration-200"
-                >
-                  Get Started as Student
-                  <ArrowRight size={16} className="transition-transform duration-200 group-hover:translate-x-1" />
-                </button>
-                <button
-                  onClick={handleRecruiterPortal}
-                  className="group inline-flex items-center gap-2 border border-white/25 text-[#FAFAFA] px-6 py-3 font-medium text-sm hover:border-white/60 transition-colors duration-200"
-                >
-                  I'm a Recruiter
-                  <ArrowRight size={16} className="transition-transform duration-200 group-hover:translate-x-1" />
-                </button>
+                {role !== "recruiter" && (
+                  <button
+                    onClick={handleStudentPortal}
+                    className="group inline-flex items-center gap-2 bg-[#FAFAFA] text-[#09090B] px-6 py-3 font-medium text-sm hover:bg-white transition-colors duration-200"
+                  >
+                    Get Started as Student
+                    <ArrowRight size={16} className="transition-transform duration-200 group-hover:translate-x-1" />
+                  </button>
+                )}
+                {role !== "student" && (
+                  <button
+                    onClick={handleRecruiterPortal}
+                    className="group inline-flex items-center gap-2 border border-white/25 text-[#FAFAFA] px-6 py-3 font-medium text-sm hover:border-white/60 transition-colors duration-200"
+                  >
+                    I'm a Recruiter
+                    <ArrowRight size={16} className="transition-transform duration-200 group-hover:translate-x-1" />
+                  </button>
+                )}
               </motion.div>
             </div>
 
@@ -608,20 +622,24 @@ export function Home() {
               Map your <span className="text-[#FF3300] italic">future.</span>
             </h2>
             <div className="mt-12 flex flex-wrap gap-4">
-              <button
-                onClick={handleStudentPortal}
-                className="group inline-flex items-center gap-2 bg-[#FAFAFA] text-[#09090B] px-8 py-4 font-medium text-sm hover:bg-[#FF3300] hover:text-white transition-colors duration-200"
-              >
-                Get Started as Student
-                <ArrowUpRight size={17} className="transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-              </button>
-              <button
-                onClick={handleRecruiterPortal}
-                className="group inline-flex items-center gap-2 border border-white/25 px-8 py-4 font-medium text-sm hover:border-white/60 transition-colors duration-200"
-              >
-                I'm a Recruiter
-                <ArrowUpRight size={17} className="transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-              </button>
+              {role !== "recruiter" && (
+                <button
+                  onClick={handleStudentPortal}
+                  className="group inline-flex items-center gap-2 bg-[#FAFAFA] text-[#09090B] px-8 py-4 font-medium text-sm hover:bg-[#FF3300] hover:text-white transition-colors duration-200"
+                >
+                  Get Started as Student
+                  <ArrowUpRight size={17} className="transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                </button>
+              )}
+              {role !== "student" && (
+                <button
+                  onClick={handleRecruiterPortal}
+                  className="group inline-flex items-center gap-2 border border-white/25 px-8 py-4 font-medium text-sm hover:border-white/60 transition-colors duration-200"
+                >
+                  I'm a Recruiter
+                  <ArrowUpRight size={17} className="transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                </button>
+              )}
             </div>
           </motion.div>
         </div>
