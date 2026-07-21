@@ -15,7 +15,7 @@ export function StudentDashboard() {
 
   return (
     <div
-      className="min-h-screen bg-[#09090B] py-16 px-5"
+      className="min-h-screen bg-[#09090B] pt-[104px] pb-16 px-5"
       style={{ fontFamily: '"IBM Plex Sans", sans-serif' }}
     >
       {/* Glow effects */}
