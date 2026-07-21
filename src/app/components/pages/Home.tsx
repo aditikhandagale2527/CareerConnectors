@@ -195,9 +195,9 @@ export function Home() {
               <span className="block font-semibold text-[17px] tracking-tight text-[#FAFAFA]" style={{ fontFamily: '"Clash Display", sans-serif' }}>
                 Career Connector
               </span>
-              <span className="block text-[9px] uppercase tracking-[0.25em] text-white/45 mt-1" style={{ fontFamily: '"JetBrains Mono", monospace' }}>
-                AI-Powered Career Guidance
-              </span>
+               <span className="block text-[9px] uppercase tracking-[0.25em] text-white/45 mt-1" style={{ fontFamily: '"JetBrains Mono", monospace' }}>
+  Where Talent Meets Intelligence
+</span>
             </span>
           </a>
 
