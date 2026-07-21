@@ -25,9 +25,9 @@ export function PostJob() {
     try {
       const formData = new FormData()
       formData.append("file", file)
-      const res = await API.post("/api/jobs/extract-jd", formData, {
-        headers: { "Content-Type": "multipart/form-data" }
-      })
+      // Don't set Content-Type manually — the browser needs to add
+      // the multipart boundary itself, or the backend can't parse it.
+      const res = await API.post("/api/jobs/extract-jd", formData)
       const data = res.data
       setForm(prev => ({
         ...prev,
@@ -37,7 +37,8 @@ export function PostJob() {
         company: data.company || prev.company,
         location: data.location || prev.location,
       }))
-    } catch {
+    } catch (err) {
+      console.error("JD extraction failed:", err)
       alert("Failed to extract from file. Please type the description manually.")
       setJdFile(null)
     } finally {
@@ -66,68 +67,76 @@ export function PostJob() {
   }
 
   return (
-    <div className="min-h-screen py-8 px-4 bg-gradient-to-br from-orange-50 to-red-50">
+    <div className="min-h-screen bg-[#F4F0EA] text-[#121212] pt-[104px] pb-24 px-5" style={{ fontFamily: '"IBM Plex Sans", sans-serif' }}>
       <div className="max-w-2xl mx-auto">
         <button
           onClick={() => navigate("/recruiter")}
-          className="flex items-center space-x-2 text-orange-600 mb-6 hover:text-orange-700"
+          className="group inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.2em] text-black/50 hover:text-[#FF3300] transition-colors duration-200 mb-8"
+          style={{ fontFamily: '"JetBrains Mono", monospace' }}
         >
-          <ArrowLeft className="w-5 h-5" />
-          <span>Back to Dashboard</span>
+          <ArrowLeft size={15} className="transition-transform duration-200 group-hover:-translate-x-1" />
+          Back to Dashboard
         </button>
 
-        <div className="bg-white rounded-xl p-8 shadow-sm border border-orange-100">
-          <h1 className="text-2xl font-bold text-orange-600 mb-6">Post a New Job</h1>
+        <div className="bg-white border border-black/10 p-8 sm:p-10">
+          <p className="text-[11px] uppercase tracking-[0.3em] text-[#FF3300] mb-4" style={{ fontFamily: '"JetBrains Mono", monospace' }}>
+            / New Listing
+          </p>
+          <h1 className="font-semibold text-3xl sm:text-4xl tracking-tighter leading-[0.95] mb-8" style={{ fontFamily: '"Clash Display", sans-serif' }}>
+            Post a new job.
+          </h1>
 
-          <div className="space-y-5">
+          <div className="flex flex-col gap-6">
             {/* Title */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Job Title <span className="text-red-500">*</span>
+              <label className="block text-[10px] uppercase tracking-[0.2em] text-black/50 mb-2" style={{ fontFamily: '"JetBrains Mono", monospace' }}>
+                Job Title <span className="text-[#FF3300]">*</span>
               </label>
               <input
                 type="text"
                 value={form.title}
                 onChange={e => setForm({ ...form, title: e.target.value })}
                 placeholder="e.g. Data Analyst"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                className="w-full px-4 py-3 border border-black/15 bg-white text-sm outline-none focus:border-[#FF3300] transition-colors duration-200"
               />
             </div>
 
             {/* Company */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Company <span className="text-red-500">*</span>
+              <label className="block text-[10px] uppercase tracking-[0.2em] text-black/50 mb-2" style={{ fontFamily: '"JetBrains Mono", monospace' }}>
+                Company <span className="text-[#FF3300]">*</span>
               </label>
               <input
                 type="text"
                 value={form.company}
                 onChange={e => setForm({ ...form, company: e.target.value })}
                 placeholder="e.g. DHL India"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                className="w-full px-4 py-3 border border-black/15 bg-white text-sm outline-none focus:border-[#FF3300] transition-colors duration-200"
               />
             </div>
 
             {/* Location + Job Type */}
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Location <span className="text-red-500">*</span>
+                <label className="block text-[10px] uppercase tracking-[0.2em] text-black/50 mb-2" style={{ fontFamily: '"JetBrains Mono", monospace' }}>
+                  Location <span className="text-[#FF3300]">*</span>
                 </label>
                 <input
                   type="text"
                   value={form.location}
                   onChange={e => setForm({ ...form, location: e.target.value })}
                   placeholder="e.g. Mumbai"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  className="w-full px-4 py-3 border border-black/15 bg-white text-sm outline-none focus:border-[#FF3300] transition-colors duration-200"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Job Type</label>
+                <label className="block text-[10px] uppercase tracking-[0.2em] text-black/50 mb-2" style={{ fontFamily: '"JetBrains Mono", monospace' }}>
+                  Job Type
+                </label>
                 <select
                   value={form.job_type}
                   onChange={e => setForm({ ...form, job_type: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  className="w-full px-4 py-3 border border-black/15 bg-white text-sm outline-none focus:border-[#FF3300] transition-colors duration-200"
                 >
                   <option>Full-time</option>
                   <option>Part-time</option>
@@ -141,46 +150,48 @@ export function PostJob() {
             {/* Salary + Deadline */}
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Salary Range</label>
+                <label className="block text-[10px] uppercase tracking-[0.2em] text-black/50 mb-2" style={{ fontFamily: '"JetBrains Mono", monospace' }}>
+                  Salary Range
+                </label>
                 <input
                   type="text"
                   value={form.salary_range}
                   onChange={e => setForm({ ...form, salary_range: e.target.value })}
                   placeholder="e.g. 5-8 LPA"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  className="w-full px-4 py-3 border border-black/15 bg-white text-sm outline-none focus:border-[#FF3300] transition-colors duration-200"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Deadline</label>
+                <label className="block text-[10px] uppercase tracking-[0.2em] text-black/50 mb-2" style={{ fontFamily: '"JetBrains Mono", monospace' }}>
+                  Deadline
+                </label>
                 <input
                   type="date"
                   value={form.deadline}
                   onChange={e => setForm({ ...form, deadline: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  className="w-full px-4 py-3 border border-black/15 bg-white text-sm outline-none focus:border-[#FF3300] transition-colors duration-200"
                 />
               </div>
             </div>
 
             {/* Job Description with attachment icon */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Job Description <span className="text-red-500">*</span>
+              <label className="block text-[10px] uppercase tracking-[0.2em] text-black/50 mb-2" style={{ fontFamily: '"JetBrains Mono", monospace' }}>
+                Job Description <span className="text-[#FF3300]">*</span>
               </label>
 
-              {/* Textarea with paperclip icon inside */}
               <div className="relative">
                 <textarea
                   value={form.description}
                   onChange={e => setForm({ ...form, description: e.target.value })}
                   placeholder="Describe the role, responsibilities, and requirements..."
                   rows={5}
-                  className="w-full px-4 py-2 pb-8 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 resize-none"
+                  className="w-full px-4 py-3 pb-10 border border-black/15 bg-white text-sm outline-none focus:border-[#FF3300] transition-colors duration-200 resize-none"
                 />
 
-                {/* Paperclip icon at bottom right of textarea */}
-                <div className="absolute bottom-2 right-3 flex items-center space-x-2">
+                <div className="absolute bottom-3 right-3 flex items-center gap-2">
                   {jdFile && !extracting && (
-                    <div className="flex items-center space-x-1 bg-orange-100 text-orange-600 px-2 py-1 rounded-full text-xs">
+                    <div className="flex items-center gap-1.5 bg-[#FF3300]/10 text-[#FF3300] px-2.5 py-1 text-[10px] uppercase tracking-[0.1em]" style={{ fontFamily: '"JetBrains Mono", monospace' }}>
                       <span>{jdFile.name.length > 15 ? jdFile.name.substring(0, 15) + "..." : jdFile.name}</span>
                       <button
                         onClick={() => {
@@ -193,12 +204,14 @@ export function PostJob() {
                     </div>
                   )}
                   {extracting && (
-                    <span className="text-xs text-orange-500">Extracting...</span>
+                    <span className="text-[10px] uppercase tracking-[0.15em] text-[#FF3300]" style={{ fontFamily: '"JetBrains Mono", monospace' }}>
+                      Extracting...
+                    </span>
                   )}
                   <button
                     type="button"
                     onClick={() => document.getElementById("jdFileInput")?.click()}
-                    className="text-gray-400 hover:text-orange-600 transition-colors"
+                    className="text-black/35 hover:text-[#FF3300] transition-colors duration-200"
                     title="Attach JD file (PDF, Word, TXT)"
                   >
                     <Paperclip className="w-5 h-5" />
@@ -215,33 +228,33 @@ export function PostJob() {
                   />
                 </div>
               </div>
-              <p className="text-xs text-gray-400 mt-1">
-                📎 Click the paperclip icon to attach a JD file (PDF, Word, TXT) — details will be auto-filled
+              <p className="text-[10px] uppercase tracking-[0.1em] text-black/40 mt-2" style={{ fontFamily: '"JetBrains Mono", monospace' }}>
+                Click the paperclip icon to attach a JD file (PDF, Word, TXT) — details will be auto-filled
               </p>
             </div>
 
             {/* Skills */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Skills Required <span className="text-gray-400">(comma separated)</span>
+              <label className="block text-[10px] uppercase tracking-[0.2em] text-black/50 mb-2" style={{ fontFamily: '"JetBrains Mono", monospace' }}>
+                Skills Required <span className="normal-case text-black/35">(comma separated)</span>
               </label>
               <input
                 type="text"
                 value={form.skills_required}
                 onChange={e => setForm({ ...form, skills_required: e.target.value })}
                 placeholder="Python, SQL, Power BI, Excel"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                className="w-full px-4 py-3 border border-black/15 bg-white text-sm outline-none focus:border-[#FF3300] transition-colors duration-200"
               />
             </div>
 
             <button
               onClick={handleSubmit}
               disabled={submitting || extracting}
-              className="w-full bg-gradient-to-r from-orange-600 to-red-600 text-white py-3 rounded-lg font-semibold hover:shadow-lg transition-all disabled:opacity-50 flex items-center justify-center space-x-2"
+              className="inline-flex items-center justify-center gap-2 bg-[#09090B] text-[#FAFAFA] py-4 text-sm font-medium hover:bg-[#FF3300] transition-colors duration-200 disabled:opacity-50"
             >
               {submitting ? (
                 <>
-                  <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                  <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                   <span>Posting...</span>
                 </>
               ) : (
