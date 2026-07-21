@@ -309,8 +309,8 @@ export function Home() {
               </h1>
 
               <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.9 }} className="mt-8 max-w-xl text-white/55 text-base sm:text-lg leading-relaxed">
-                Democratizing career guidance through AI-driven resume analysis, cognitive aptitude testing and personality profiling — delivering data-backed career paths and closing skill gaps for job seekers and employers alike.
-              </motion.p>
+  Democratizing career guidance through AI resume analysis, aptitude testing, and personality profiling that deliver data-backed career paths and close skill gaps for job seekers and employers alike.
+</motion.p>
 
               <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 1.05 }} className="mt-10 flex flex-col sm:flex-row border border-white/15 bg-white/[0.03] backdrop-blur-sm">
                 <label className="flex items-center gap-3 px-4 py-4 flex-1 border-b sm:border-b-0 sm:border-r border-white/12">
