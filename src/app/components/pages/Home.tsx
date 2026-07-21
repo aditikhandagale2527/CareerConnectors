@@ -652,12 +652,29 @@ export function Home() {
               <span className="font-semibold text-base tracking-tight" style={{ fontFamily: '"Clash Display", sans-serif' }}>Career Connector</span>
             </div>
             <div className="flex flex-wrap gap-x-8 gap-y-3">
-              {["Home", "Features", "Jobs", "Recruiter Portal", "Privacy"].map((l) => (
-                <a key={l} href="#home" className="text-[10px] uppercase tracking-[0.2em] text-white/50 hover:text-white transition-colors duration-200" style={{ fontFamily: '"JetBrains Mono", monospace' }}>
-                  {l}
-                </a>
-              ))}
-            </div>
+  <a href="#home" className="text-[10px] uppercase tracking-[0.2em] text-white/50 hover:text-white transition-colors duration-200" style={{ fontFamily: '"JetBrains Mono", monospace' }}>
+    Home
+  </a>
+  <a href="#features" className="text-[10px] uppercase tracking-[0.2em] text-white/50 hover:text-white transition-colors duration-200" style={{ fontFamily: '"JetBrains Mono", monospace' }}>
+    Features
+  </a>
+  <a href="#jobs" className="text-[10px] uppercase tracking-[0.2em] text-white/50 hover:text-white transition-colors duration-200" style={{ fontFamily: '"JetBrains Mono", monospace' }}>
+    Jobs
+  </a>
+  {role !== "recruiter" && (
+    <button onClick={handleStudentPortal} className="text-[10px] uppercase tracking-[0.2em] text-white/50 hover:text-white transition-colors duration-200" style={{ fontFamily: '"JetBrains Mono", monospace' }}>
+      Student Portal
+    </button>
+  )}
+  {role !== "student" && (
+    <button onClick={handleRecruiterPortal} className="text-[10px] uppercase tracking-[0.2em] text-white/50 hover:text-white transition-colors duration-200" style={{ fontFamily: '"JetBrains Mono", monospace' }}>
+      Recruiter Portal
+    </button>
+  )}
+  <a href="#" className="text-[10px] uppercase tracking-[0.2em] text-white/50 hover:text-white transition-colors duration-200" style={{ fontFamily: '"JetBrains Mono", monospace' }}>
+    Privacy
+  </a>
+</div>
             <p className="text-[10px] uppercase tracking-[0.2em] text-white/35" style={{ fontFamily: '"JetBrains Mono", monospace' }}>
               © {new Date().getFullYear()} Career Connector
             </p>
