@@ -25,9 +25,9 @@ export function PostJob() {
     try {
       const formData = new FormData()
       formData.append("file", file)
-      // Don't set Content-Type manually — the browser needs to add
-      // the multipart boundary itself, or the backend can't parse it.
-      const res = await API.post("/api/jobs/extract-jd", formData)
+      const res = await API.post("/api/jobs/extract-jd", formData, {
+        headers: { "Content-Type": undefined }
+      })
       const data = res.data
       setForm(prev => ({
         ...prev,
