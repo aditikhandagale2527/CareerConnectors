@@ -29,6 +29,7 @@ export function Root() {
 
   const handleLogout = () => {
     localStorage.removeItem("token")
+    localStorage.removeItem("role")
     localStorage.removeItem("appliedJobs")
     localStorage.removeItem("extractedSkills")
     localStorage.removeItem("aptitudeScore")
