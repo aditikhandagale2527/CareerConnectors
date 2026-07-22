@@ -21,14 +21,10 @@ export function Login() {
       localStorage.removeItem("aptitudeScore")
       localStorage.removeItem("mbtiResult")
 
-      const payload = JSON.parse(atob(data.access_token.split(".")[1]))
+ const payload = JSON.parse(atob(data.access_token.split(".")[1]))
 const role = payload.role
-localStorage.setItem("role", role)   // ← add this line
-if (role === "recruiter") {
-  navigate("/recruiter")
-} else {
-  navigate("/student")
-}
+localStorage.setItem("role", role)
+navigate("/")
     } catch (err: any) {
       setError("Invalid email or password")
     } finally {
