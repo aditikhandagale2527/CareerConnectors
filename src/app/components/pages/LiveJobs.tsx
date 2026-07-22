@@ -1,14 +1,22 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { useSearchParams } from "react-router"
 import { Search, MapPin, Briefcase, ArrowUpRight } from "lucide-react"
 import API from "../../src/api/config"
 
-export function LiveJobs() {
-  const [query, setQuery] = useState("")
-  const [location, setLocation] = useState("Mumbai")
+  export function LiveJobs() {
+  const [searchParams] = useSearchParams()
+  const [query, setQuery] = useState(searchParams.get("q") || "")
+  const [location, setLocation] = useState(searchParams.get("location") || "Mumbai")
   const [jobs, setJobs] = useState<any[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const [searched, setSearched] = useState(false)
+
+  useEffect(() => {
+    if (searchParams.get("q")) {
+      searchJobs()
+    }
+  }, [])
 
   const searchJobs = async () => {
     if (!query) return
