@@ -512,20 +512,19 @@ export function Home() {
                         </span>
                       ))}
                     </div>
-                    {appliedJobs.includes(job._id) ? (
-                      <div className="mt-auto inline-flex items-center justify-center gap-2 bg-green-100 text-green-700 py-3 text-sm font-medium">
-                        Applied!
-                      </div>
-                    ) : (
-                      <button
-                        onClick={() => handleApply(job._id)}
-                        disabled={applying === job._id}
-                        className="group/btn mt-auto inline-flex items-center justify-center gap-2 bg-[#09090B] text-[#FAFAFA] py-3 text-sm font-medium hover:bg-[#FF3300] transition-colors duration-200 disabled:opacity-50"
-                      >
-                        {applying === job._id ? "Applying..." : "Apply Now"}
-                        <ArrowRight size={15} className="transition-transform duration-200 group-hover/btn:translate-x-1" />
-                      </button>
-                    )}
+         {appliedJobs.includes(job._id) ? (
+  <div className="mt-auto inline-flex items-center justify-center gap-2 bg-green-100 text-green-700 py-3 text-sm font-medium">
+    Applied!
+  </div>
+) : (
+  <button
+    onClick={() => navigate(`/jobs?highlight=${job._id}`)}
+    className="group/btn mt-auto inline-flex items-center justify-center gap-2 bg-[#09090B] text-[#FAFAFA] py-3 text-sm font-medium hover:bg-[#FF3300] transition-colors duration-200"
+  >
+    Apply Now
+    <ArrowRight size={15} className="transition-transform duration-200 group-hover/btn:translate-x-1" />
+  </button>
+)}
                   </motion.article>
                 ))}
               </div>
