@@ -98,16 +98,12 @@ export function Root() {
                 </Link>
               )}
 
-              {(isStudent || !token) && (
-                <>
-                  <Link to="/jobs" className={navLinkClass("/jobs")} style={{ fontFamily: '"JetBrains Mono", monospace' }}>
-                    Jobs
-                  </Link>
-                  <Link to="/livejobs" className={navLinkClass("/livejobs")} style={{ fontFamily: '"JetBrains Mono", monospace' }}>
-                    Live Jobs
-                  </Link>
-                </>
-              )}
+            <Link to="/jobs" className={navLinkClass("/jobs")} style={{ fontFamily: '"JetBrains Mono", monospace' }}>
+  Jobs
+</Link>
+<Link to="/livejobs" className={navLinkClass("/livejobs")} style={{ fontFamily: '"JetBrains Mono", monospace' }}>
+  Live Jobs
+</Link>
 
               <div className="pl-2 border-l border-white/15">
                 {token ? (
