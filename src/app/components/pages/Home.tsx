@@ -204,28 +204,28 @@ export function Home() {
           {/* Desktop Nav Links */}
           <div className="hidden md:flex items-center gap-9">
             {NAV_LINKS.map((l) => (
-              <a key={l.label} href={l.href} className="text-[11px] uppercase tracking-[0.2em] text-white/60 hover:text-white transition-colors duration-200" style={{ fontFamily: '"JetBrains Mono", monospace' }}>
-                {l.label}
-              </a>
-            ))}
-            {role !== "recruiter" && (
-              <button
-                onClick={handleStudentPortal}
-                className="text-[11px] uppercase tracking-[0.2em] text-white/60 hover:text-white transition-colors duration-200"
-                style={{ fontFamily: '"JetBrains Mono", monospace' }}
-              >
-                Student Portal
-              </button>
-            )}
-            {role !== "student" && (
-              <button
-                onClick={handleRecruiterPortal}
-                className="text-[11px] uppercase tracking-[0.2em] text-white/60 hover:text-white transition-colors duration-200"
-                style={{ fontFamily: '"JetBrains Mono", monospace' }}
-              >
-                Recruiter Portal
-              </button>
-            )}
+  <a key={l.label} href={l.href} className="text-[13px] uppercase tracking-[0.2em] text-white/60 hover:text-white pb-1 border-b-2 border-transparent hover:border-[#FF3300] transition-colors duration-200" style={{ fontFamily: '"JetBrains Mono", monospace' }}>
+    {l.label}
+  </a>
+))}
+{role !== "recruiter" && (
+  <button
+    onClick={handleStudentPortal}
+    className="text-[13px] uppercase tracking-[0.2em] text-white/60 hover:text-white pb-1 border-b-2 border-transparent hover:border-[#FF3300] transition-colors duration-200"
+    style={{ fontFamily: '"JetBrains Mono", monospace' }}
+  >
+    Student Portal
+  </button>
+)}
+{role !== "student" && (
+  <button
+    onClick={handleRecruiterPortal}
+    className="text-[13px] uppercase tracking-[0.2em] text-white/60 hover:text-white pb-1 border-b-2 border-transparent hover:border-[#FF3300] transition-colors duration-200"
+    style={{ fontFamily: '"JetBrains Mono", monospace' }}
+  >
+    Recruiter Portal
+  </button>
+)}
           </div>
 
           {/* Get Started Button */}
