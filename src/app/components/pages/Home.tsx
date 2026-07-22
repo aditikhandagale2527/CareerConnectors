@@ -5,7 +5,7 @@ import Marquee from "react-fast-marquee";
 import Lenis from "lenis";
 import {
   BrainCircuit, Menu, X, ArrowUpRight, Search, MapPin, ArrowRight, Sparkles,
-  FileScan, Target, TrendingUp, Building2, Braces, Briefcase, CheckCircle2,
+  FileScan, Target, TrendingUp, Building2, Users, Briefcase, CheckCircle2,
 } from "lucide-react";
 import API from "../../src/api/config";
 
@@ -19,13 +19,13 @@ const NAV_LINKS = [
   { label: "Recruiters", href: "#recruiters" },
 ];
 
-const FEATURES = [
+ const FEATURES = [
   { n: "01", icon: BrainCircuit, title: "AI Career Recommender", desc: "Personalized job-role suggestions powered by Gemini, analyzing your full profile to surface the roles you'll actually thrive in." },
   { n: "02", icon: FileScan, title: "Resume Insight Engine", desc: "Automated extraction of technical and soft skills from PDF resumes using advanced multimodal AI analysis." },
   { n: "03", icon: Target, title: "Aptitude & Personality Mapping", desc: "LRDI, QA and VARC scores fused with MBTI types feed an intelligent recommendation engine built for fit." },
   { n: "04", icon: TrendingUp, title: "Skill Gap Analysis", desc: "Actionable, market-aware guidance on exactly what to learn next based on real-time demand and your goals." },
   { n: "05", icon: Building2, title: "Recruiter Portal", desc: "A secure command center for employers to post roles, manage requirements and review AI-ranked candidates." },
-  { n: "06", icon: Braces, title: "Agentic API", desc: "A standalone FastAPI service for programmatic job recommendations and seamless third-party integration." },
+  { n: "06", icon: Users, title: "Student Portal", desc: "One dashboard to upload your resume, take assessments, and track your journey from application to offer." },
 ];
 
 const MANIFESTO = [
