@@ -43,12 +43,12 @@ export function Root() {
   const isAuthPage = location.pathname === "/login" || location.pathname === "/register"
   const isHomePage = location.pathname === "/"
 
-  const navLinkClass = (path: string, exact = false) => {
-    const active = exact ? location.pathname === path : isActive(path)
-    return `text-[11px] uppercase tracking-[0.2em] transition-colors duration-200 ${
-      active ? "text-[#FF3300]" : "text-white/60 hover:text-white"
-    }`
-  }
+ const navLinkClass = (path: string, exact = false) => {
+  const active = exact ? location.pathname === path : isActive(path)
+  return `text-[13px] uppercase tracking-[0.2em] pb-1 border-b-2 transition-colors duration-200 ${
+    active ? "text-[#FF3300] border-[#FF3300]" : "text-white/60 border-transparent hover:text-white"
+  }`
+}
 
   const mobileLinkClass = (path: string, exact = false) => {
     const active = exact ? location.pathname === path : isActive(path)
