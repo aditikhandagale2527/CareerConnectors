@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import { useParams, useNavigate } from "react-router"
-import { ArrowLeft, User } from "lucide-react"
+import { ArrowLeft, User, FileText, Clock, CheckCircle2, XCircle } from "lucide-react"
 import API from "../../src/api/config"
 
 export function Applicants() {
@@ -33,54 +33,65 @@ export function Applicants() {
     }
   }
 
-  const scoreColor = (score: number) => {
-    if (score >= 60) return "text-green-600"
-    return "text-red-500"
+  const handleViewResume = (app: any) => {
+    if (app.resume_url) {
+      window.open(app.resume_url, "_blank")
+    } else {
+      alert("Resume not available yet for this applicant.")
+    }
   }
 
+  const scoreColor = (score: number) => {
+    if (score >= 60) return "text-green-700"
+    return "text-[#FF3300]"
+  }
+
+  const pending = applicants.filter(a => !a.status || a.status === "pending")
   const shortlisted = applicants.filter(a => a.status === "shortlisted")
   const rejected = applicants.filter(a => a.status === "rejected")
 
   const ApplicantCard = ({ app }: { app: any }) => (
-    <div className="bg-white p-6 rounded-xl shadow-sm border border-orange-100">
-      <div className="flex justify-between items-start mb-3">
+    <div className="bg-white border border-black/10 p-5">
+      <div className="flex justify-between items-start gap-3 mb-4">
         <div>
-          <h3 className="text-lg font-bold text-gray-800">{app.student_name || "Applicant"}</h3>
-          <p className="text-gray-500 text-sm">{app.student_email}</p>
-          <p className="text-gray-400 text-xs mt-1">
-            Applied: {new Date(app.applied_at).toLocaleDateString()}
+          <h3 className="text-base font-medium tracking-tight" style={{ fontFamily: '"Clash Display", sans-serif' }}>
+            {app.student_name || "Applicant"}
+          </h3>
+          <p className="text-black/50 text-xs mt-1">{app.student_email}</p>
+          <p className="text-black/35 text-[10px] uppercase tracking-[0.15em] mt-1" style={{ fontFamily: '"JetBrains Mono", monospace' }}>
+            Applied {new Date(app.applied_at).toLocaleDateString()}
           </p>
         </div>
-        <div className="text-right">
-          <span className={`text-2xl font-bold ${scoreColor(app.match_score ?? 0)}`}>
+        <div className="text-right shrink-0">
+          <p className={`text-xl font-semibold ${scoreColor(app.match_score ?? 0)}`} style={{ fontFamily: '"Clash Display", sans-serif' }}>
             {app.match_score ?? 0}%
-          </span>
-          <p className="text-xs text-gray-400">match score</p>
+          </p>
+          <p className="text-[9px] uppercase tracking-[0.15em] text-black/35" style={{ fontFamily: '"JetBrains Mono", monospace' }}>
+            match
+          </p>
         </div>
       </div>
 
-      {app.student_skills?.length > 0 && (
-        <div className="flex flex-wrap gap-1 mb-3">
-          {app.student_skills.map((skill: string, i: number) => (
-            <span key={i} className="bg-gray-50 text-gray-600 px-2 py-0.5 rounded-full text-xs">
-              {skill}
-            </span>
-          ))}
-        </div>
-      )}
+      <button
+        onClick={() => handleViewResume(app)}
+        className="w-full inline-flex items-center justify-center gap-2 border border-black/15 text-black/70 py-2 text-xs font-medium hover:border-[#FF3300] hover:text-[#FF3300] transition-colors duration-200 mb-4"
+      >
+        <FileText size={13} />
+        View Resume
+      </button>
 
-      <div className="flex gap-3 pt-3 border-t border-gray-100">
+      <div className="flex gap-2 pt-3 border-t border-black/10">
         <button
           onClick={() => updateStatus(app._id, "shortlisted")}
           disabled={app.status === "shortlisted"}
-          className="bg-green-50 text-green-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-100 transition-all disabled:opacity-40"
+          className="flex-1 bg-green-50 text-green-700 px-3 py-2 text-xs font-medium hover:bg-green-100 transition-colors duration-200 disabled:opacity-40"
         >
           Shortlist
         </button>
         <button
           onClick={() => updateStatus(app._id, "rejected")}
           disabled={app.status === "rejected"}
-          className="bg-red-50 text-red-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-red-100 transition-all disabled:opacity-40"
+          className="flex-1 bg-[#FF3300]/10 text-[#FF3300] px-3 py-2 text-xs font-medium hover:bg-[#FF3300]/20 transition-colors duration-200 disabled:opacity-40"
         >
           Reject
         </button>
@@ -88,18 +99,21 @@ export function Applicants() {
     </div>
   )
 
-  const Section = ({ title, list, color }: { title: string; list: any[]; color: string }) => (
-    <div className="mb-8">
-      <h2 className={`text-lg font-bold mb-3 flex items-center gap-2 ${color}`}>
-        {title}
-        <span className="text-sm font-normal text-gray-400">({list.length})</span>
-      </h2>
+  const Column = ({ title, list, icon: Icon, accent }: { title: string; list: any[]; icon: any; accent: string }) => (
+    <div className="flex-1 min-w-[280px]">
+      <div className="flex items-center gap-2 mb-4">
+        <Icon size={16} className={accent} />
+        <h2 className="text-sm font-medium uppercase tracking-[0.15em]" style={{ fontFamily: '"JetBrains Mono", monospace' }}>
+          {title}
+        </h2>
+        <span className="text-xs text-black/40">({list.length})</span>
+      </div>
       {list.length === 0 ? (
-        <p className="text-gray-400 text-sm bg-white rounded-xl p-4 border border-gray-100">
+        <p className="text-black/40 text-sm bg-white border border-black/10 p-5 text-center">
           No candidates here yet
         </p>
       ) : (
-        <div className="space-y-4">
+        <div className="flex flex-col gap-4">
           {list.map(app => <ApplicantCard key={app._id} app={app} />)}
         </div>
       )}
@@ -107,34 +121,45 @@ export function Applicants() {
   )
 
   return (
-    <div className="min-h-screen py-8 px-4 bg-gradient-to-br from-orange-50 to-red-50">
-      <div className="max-w-4xl mx-auto">
+    <div className="min-h-screen bg-[#F4F0EA] text-[#121212] pt-[104px] pb-24 px-5" style={{ fontFamily: '"IBM Plex Sans", sans-serif' }}>
+      <div className="max-w-[1400px] mx-auto">
         <button
           onClick={() => navigate("/recruiter")}
-          className="flex items-center space-x-2 text-orange-600 mb-6 hover:text-orange-700"
+          className="group inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.2em] text-black/50 hover:text-[#FF3300] transition-colors duration-200 mb-8"
+          style={{ fontFamily: '"JetBrains Mono", monospace' }}
         >
-          <ArrowLeft className="w-5 h-5" />
-          <span>Back to Dashboard</span>
+          <ArrowLeft size={15} className="transition-transform duration-200 group-hover:-translate-x-1" />
+          Back to Dashboard
         </button>
 
-        <h1 className="text-2xl font-bold text-orange-600 mb-6">Applicants</h1>
+        <p className="text-[11px] uppercase tracking-[0.3em] text-[#FF3300] mb-4" style={{ fontFamily: '"JetBrains Mono", monospace' }}>
+          / Candidates
+        </p>
+        <h1 className="font-semibold text-3xl sm:text-4xl tracking-tighter leading-[0.95] mb-10" style={{ fontFamily: '"Clash Display", sans-serif' }}>
+          Applicants.
+        </h1>
 
         {loading ? (
-          <div className="text-center py-12">
-            <div className="w-12 h-12 border-4 border-orange-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading applicants...</p>
+          <div className="text-center py-20">
+            <div className="w-10 h-10 border-2 border-[#FF3300] border-t-transparent rounded-full animate-spin mx-auto mb-5" />
+            <p className="text-black/45 text-sm uppercase tracking-[0.2em]" style={{ fontFamily: '"JetBrains Mono", monospace' }}>
+              Loading applicants...
+            </p>
           </div>
         ) : applicants.length === 0 ? (
-          <div className="bg-white rounded-xl p-12 text-center shadow-sm">
-            <User className="w-16 h-16 text-orange-300 mx-auto mb-4" />
-            <h3 className="text-xl font-bold text-gray-800 mb-2">No Applicants Yet</h3>
-            <p className="text-gray-600">Applicants will appear here once students apply</p>
+          <div className="border border-black/10 bg-white p-16 text-center">
+            <User size={40} className="text-[#FF3300]/40 mx-auto mb-5" strokeWidth={1.6} />
+            <h3 className="text-xl font-medium tracking-tight mb-2" style={{ fontFamily: '"Clash Display", sans-serif' }}>
+              No applicants yet
+            </h3>
+            <p className="text-black/50 text-sm">Applicants will appear here once students apply.</p>
           </div>
         ) : (
-          <>
-            <Section title="Shortlisted" list={shortlisted} color="text-green-600" />
-            <Section title="Rejected" list={rejected} color="text-red-500" />
-          </>
+          <div className="flex flex-col lg:flex-row gap-8">
+            <Column title="Pending" list={pending} icon={Clock} accent="text-black/40" />
+            <Column title="Shortlisted" list={shortlisted} icon={CheckCircle2} accent="text-green-600" />
+            <Column title="Rejected" list={rejected} icon={XCircle} accent="text-[#FF3300]" />
+          </div>
         )}
       </div>
     </div>
