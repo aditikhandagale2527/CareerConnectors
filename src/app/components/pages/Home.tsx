@@ -553,7 +553,7 @@ export function Home() {
                     No matter the skills, experience or qualifications you're looking for, our AI-powered matching surfaces the right candidates — ranked, scored and ready.
                   </p>
                   <button
-                    onClick={handleRecruiterPortal}
+                    onClick={handlePostJob}
                     className="group mt-8 inline-flex items-center gap-2 bg-[#FAFAFA] text-[#09090B] px-7 py-3.5 font-medium text-sm hover:bg-[#FF3300] hover:text-white transition-colors duration-200"
                   >
                     Post a Job
