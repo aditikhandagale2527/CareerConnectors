@@ -142,6 +142,13 @@ export function Home() {
     }
     navigate("/recruiter");
   };
+  const handlePostJob = () => {
+  if (role === "student") {
+    alert("Please login as a recruiter to post a job.");
+    return;
+  }
+  handleRecruiterPortal();
+};
 
   const handleApply = async (jobId: string) => {
     if (!token) {
